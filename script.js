@@ -38,11 +38,16 @@ $.getJSON(url)
           var style = {
             fillColor: '#1a9641',
             fillOpacity: 1,
-            radius: 5,
+            radius: 8,
             stroke: true,
-            color: 'white',
-            weight: 1
+            color: 'blue',
+            weight: 3
           };
+          //conditional to outline based on source
+          if (feature.properties.sampler == 'NYCWTA') {
+            style.color = 'purple';
+          }
+          
           //conditional to color points based on enterococcus counts
           if (feature.properties.entero > 105) {
             style.fillColor = '#fdae61';
@@ -50,10 +55,14 @@ $.getJSON(url)
           if (feature.properties.entero > 640) {
             style.fillColor = '#d7191c';
           }
+          
           return style;
         },
-      }),
+      })
 
+$("#dateSlider").dateRangeSlider();
+
+/*
       sliderControl = L.control.sliderControl({
         position: "topright",
         layer: testlayer
@@ -66,6 +75,7 @@ $.getJSON(url)
         //And initialize the slider
         sliderControl.startSlider();
 
+*/
       });
 
   });
