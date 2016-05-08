@@ -60,7 +60,11 @@ $.getJSON(url)
         },
       })
 
-$("#dateSlider").dateRangeSlider();
+$("#dateSlider").dateRangeSlider({
+  bounds: {
+    min: new Date(2015, 0, 1),
+    max: new Date(2015, 11, 31)}
+  });
 
 /*
       sliderControl = L.control.sliderControl({
