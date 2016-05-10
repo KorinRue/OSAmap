@@ -28,7 +28,7 @@ $(document).ready(function () {
   //time slider
   .done(function (data) {
 
-    L.geoJson(data, {
+    dataLayer = L.geoJson(data, {
 
       pointToLayer: function (feature,latlng) {
         return L.circleMarker(latlng);
@@ -47,14 +47,14 @@ $(document).ready(function () {
         var style = {
           fillColor: '#1a9641',
           fillOpacity: 1,
-          radius: 8,
+          radius: 5,
           stroke: true,
-          color: 'blue',
+          color: 'black',
           weight: 3
         };
           //conditional to outline based on source
         if (feature.properties.sampler == 'NYCWTA') {
-          style.color = 'purple';
+          style.color = 'white';
         }
             
             //conditional to color points based on enterococcus counts
@@ -77,8 +77,19 @@ $(document).ready(function () {
         max: new Date(2015, 11, 31)}
     });
 
-    $("#dateSlider").bind("valuesChanging", function(e, data){
-      console.log("Something moved. min: " + data.values.min + " max: " + data.values.max);
+    $("#dateSlider").bind("valuesChanged", function(e, data){
+      var sql = "SELECT * FROM all_sites_2015 WHERE DATE > " + data.values.min + "AND DATE < " + data.values.max
+      var url = 'https://korin.cartodb.com/api/v2/sql?' + $.param({
+        q: sql,
+        format: 'GeoJSON'
+      });
+
+      $.getJSON(url)
+
+      .done(function (data) {
+        dataLayer.clearLayers();
+        dataLayer.addData(data);
+      });
     });
   });
 });
