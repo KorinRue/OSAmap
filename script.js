@@ -80,21 +80,5 @@ $(document).ready(function () {
     $("#dateSlider").bind("valuesChanging", function(e, data){
       console.log("Something moved. min: " + data.values.min + " max: " + data.values.max);
     });
-
-  /*
-        sliderControl = L.control.sliderControl({
-          position: "topright",
-          layer: testlayer
-        });
-
-        
-          //Make sure to add the slider to the map ;-)
-          map.addControl(sliderControl);
-
-          //And initialize the slider
-          sliderControl.startSlider();
-
-  */
   });
-
 });
