@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<title>Open Sewer Atlas</title>
+  <head>
+  	<meta charset="utf-8">
+  	<title>Open Sewer Atlas</title>
 
-  	<link type="text/css" rel="stylesheet" href="stylesheet.css"/>
+    <link type="text/css" rel="stylesheet" href="stylesheet.css"/>
 
-  	<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-    
+      
     <!-- Load Leaflet from CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
@@ -24,26 +24,36 @@
 
     <!-- ghusse time slider -->
     <link rel="stylesheet" href="iThing.css" type="text/css" />
-     <!--<script src="jquery-ui-1.8.16.custom.min.js"></script>-->
     <script src="jQDateRangeSlider-min.js"></script>
-
-    <!--time slider scripts -->
-      <!--<script type="text/javascript" src="SliderControl.js"></script> -->
-
+      
+    <!--mustache for template-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.min.js"></script>
+      
     <!--my script -->
     <script type="text/javascript" src="script.js"></script>
-
 </head>
 
-<body>
-  <h1 style= "font-family:calibri; font-size:20; color:DarkSlateGray;"> New York Harbor Water Quality Results </h1>
-  <!-- <select class="limit">-->
-  <!--   <option value="10">10</option>-->
-  <!--   <option value="25">25</option>-->
-  <!--   <option value="50">50</option>-->
-  <!--   <option value="100">100</option>-->
-  <!-- </select>-->
-  <div id="map"></div>
-  <div id="dateSlider"></div>
-</body>
+  <body>
+    <div id="map"> </div>
+      <div id="title">
+        <div class="h1"> New York Harbor Water Quality Results </div>
+        This map shows 2015 water quality results from NYC Department of Environmental Protection <a href="http://www.nyc.gov/html/dep/html/harborwater/harbor_water_sampling_results.shtml">Harbor Survey</a> <span id="dep"></span> and from <a href="http://www.nycwatertrail.org/">NYC Water Trail Association</a> <span id="wta"></span>, a group of citizen scientists that test water in the harbor during the recreation season. <p> Use the time slider below to see water quality results throughout the year.</p>
+      </div>
+      <div id='legend'>
+        <div id='legend-content'>
+        <strong>Water Quality Standards for Swimming</strong>
+        <p></p>
+          <div><span class='acceptable'></span>Acceptable: less than 35 MPN</div>
+          <div><span class='unacceptable'></span>Unacceptable if levels persist: 35-104 MPN</div>
+          <div><span class='unacceptable2'></span>Unacceptable: more than 104 MPN</div>
+          <p></p>
+          <div><span class='entero'>MPN = most probable number. This is the count of Enterococcus for a 100 milliliter water sample. Enterococcus is a bacteria most commonly found in feces of warm-blooded animals (like humans!). They are tested for to indicate sewage or other fecal pollution that could contain pathogens that could make us sick if we fish, swim or boat in the water.</span></div>
+        </div>
+      </div>
+      <script id="template" type="x-tmpl-mustache">
+      {{sampler}}'s water sample showed {{entero}} colonies of enterococcus per 100 milliliters of water sampled.
+        <div class='date'>Site: {{site}};  Date: {{date}}</div></p>
+      </script>
+    <div id="dateSlider"></div>
+  </body>
 </html>

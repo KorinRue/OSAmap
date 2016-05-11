@@ -2,7 +2,7 @@
 
 $(document).ready(function () {
   // NYC-centered map
-  var map = L.map('map').setView([40.731649,-73.977814], 11);
+  var map = L.map('map', { zoomControl: false }).setView([40.731649,-73.977814], 11);
   var dataLayer;
   
   // baselayer
@@ -17,7 +17,7 @@ $(document).ready(function () {
     position: 'topright'
   }).addTo(map);
 
-
+  new L.Control.Zoom({ position: 'topright' }).addTo(map);
 
 
   var url = 'https://korin.cartodb.com/api/v2/sql?' + $.param({
@@ -35,14 +35,15 @@ $(document).ready(function () {
       },
 
       onEachFeature: function (feature, layer) {
-        layer.bindPopup(feature.properties.date + "'s water sample showed " + feature.properties.entero + " colonies of enterococcus per 100 milliliters of water");
-      },
-        //time slider
-        //var testlayer = L.geoJson(data, {
+        // mustache template for pop up
+        layer.on('click', function () {
+          var template = $('#template').html(); 
+          var output = Mustache.render(template, feature.properties);
+          layer.bindPopup(output).openPopup();
+          });
+        },
 
-        //Create a marker layer (in the example done via a GeoJSON FeatureCollection)
-
-        //styling generic
+        //styling 
       style: function (feature) {
         var style = {
           fillColor: '#1a9641',
@@ -74,11 +75,11 @@ $(document).ready(function () {
     $("#dateSlider").dateRangeSlider({
       bounds: {
         min: new Date(2015, 0, 1),
-        max: new Date(2015, 11, 31)}
+        max: new Date(2015, 11, 31)},
     });
 
     $("#dateSlider").bind("valuesChanged", function(e, data){
-      var sql = "SELECT * FROM all_sites_2015 WHERE DATE > " + data.values.min + "AND DATE < " + data.values.max
+      var sql = "SELECT * FROM all_sites_2015 WHERE DATE > '" + data.values.min.toISOString() + "' AND DATE < '" + data.values.max.toISOString() + "'";
       var url = 'https://korin.cartodb.com/api/v2/sql?' + $.param({
         q: sql,
         format: 'GeoJSON'
