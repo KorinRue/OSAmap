@@ -219,7 +219,7 @@ var Chart = function() {
 		.call(brush)
 		.call(brush.move, function() {
 			dateFmt = d3.timeFormat("%Y/%m/%d");
-			setSubtitle("Week: " + dateFmt(new Date(dates.min)) + " - " + dateFmt(new Date(dates.max)));
+			setSubtitle("Weeks: " + dateFmt(new Date(dates.min)) + " - " + dateFmt(new Date(dates.max)));
 			return [new Date(dates.min),new Date(dates.max)].map(x);
 		});
 
