@@ -16,8 +16,7 @@ var Chart = function() {
 		bar,
 		barWidth,
 		dateRange,
-		precipMap,
-		drawMap;
+		precipMap;
 	
 	var customTimeFormat = function (date) {
 
@@ -115,7 +114,7 @@ var Chart = function() {
 
 	}
 
-	var brushend = function() {
+	var brushend = function(drawMap) {
 
 		if (! d3.event.selection) {
 			return;
@@ -133,10 +132,9 @@ var Chart = function() {
 		$('.precipitation').html(title);
 	}
 
-	var initialize = function(dateRange, map, renderMap) {
+	var initialize = function(dateRange, map) {
 		var weeks, dateFmt;
 		
-		drawMap = renderMap;
 		precipMap = map
 
         // init margins
@@ -171,7 +169,7 @@ var Chart = function() {
 
 	}
 
-	var render = function(data, dates) {
+	var render = function(data, dates, renderMap) {
 
 		var bar,
 			dateFmt;
@@ -226,7 +224,7 @@ var Chart = function() {
 		.extent([ [0, 0], [width, height] ])
 		.on("start", brushstart)
 		.on("brush", brushmove)
-		.on("end", brushend);
+		.on("end", function(){ brushend(renderMap) });
 		
 		// init brush group
 		var brushG = context.append("g")

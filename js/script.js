@@ -35,7 +35,7 @@ $(document).ready(function() {
 			.done(function(data) {
 				data.rows.forEach(function(d){
 					var format = d3.timeFormat("%Y-%m-%d");
-					resolve({min: format(new Date(d.min)), max: format(new Date(d.max))});
+					resolve({min: format(d3.timeWeek.floor(new Date(d.min))), max: format(d3.timeWeek.ceil(new Date(d.max)))});
 				})
 			})
 			.error(function(errors) {
@@ -188,8 +188,8 @@ $(document).ready(function() {
 	getDateRange().then(function(dateRange) {
 		getPrecipData(dateRange).then(function(data) {
 			var chart = Chart();
-			chart.initialize(dateRange, map, renderMap);
-			chart.render(data, SELECTED_DATE_RANGE);
+			chart.initialize(dateRange, map);
+			chart.render(data, SELECTED_DATE_RANGE, renderMap);
 			renderMap(map, dateRange);
 		});
 	});
