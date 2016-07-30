@@ -5,7 +5,7 @@ var Chart = function() {
 	var margin, 
 		width, height,
 		x, y,
-		xAxis, yAxis,
+		xAxis, xAxis2, yAxis,
 		startDomain,
 		startDate,
 		startWeek,
@@ -34,9 +34,25 @@ var Chart = function() {
 		: d3.timeMinute(date) < date ? formatSecond
 		: d3.timeHour(date) < date ? formatMinute
 		: d3.timeDay(date) < date ? formatHour
-		: d3.timeWeek(date) < date && date.getDate() > 7 ? formatDay
-		: d3.timeMonth(date) < date && date.getDate() > 7 ? formatWeek
-		: d3.timeYear(date) < date ? function(date){return formatMonth(date).charAt(0);}
+		: d3.timeWeek(date) < date ? formatDay
+		: d3.timeMonth(date) <= date ? formatWeek
+		: d3.timeYear(date) <= date ? formatMonth
+		: formatYear)(date);
+
+	}
+	
+	var customTimeFormat2 = function (date) {
+
+		var formatMillisecond = d3.timeFormat(".%L"),
+		formatSecond = d3.timeFormat(":%S"),
+		formatMinute = d3.timeFormat("%I:%M"),
+		formatHour = d3.timeFormat("%I %p"),
+		formatDay = d3.timeFormat("%a %d"),
+		formatWeek = d3.timeFormat("%d"),
+		formatMonth = d3.timeFormat("%b"),
+		formatYear = d3.timeFormat("%Y");
+
+		return (d3.timeYear(date) <= date ? formatMonth
 		: formatYear)(date);
 
 	}
@@ -72,33 +88,30 @@ var Chart = function() {
 
 	var brushmove = function() {
 
-		var dateFmt, currentDate;
+		var dateFmt, currentDate, weekDomain;
 		
 		if (!d3.event.sourceEvent || d3.event.sourceEvent.type === "brush") {
 			return;
 		}
 
 		currentSelection = d3.event.selection.map(x.invert);
+		currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
+		weekDomain = [d3.timeWeek.ceil(x.domain()[0]), d3.timeWeek.floor(x.domain()[1])];
 
-
-		if (currentSelection[0] < startWeek[0]) {
+		if (currentSelection[0] < currentWeek[0]) {
 			currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
-		} else if (currentSelection[1] > startWeek[1]) {
+		} else if (currentSelection[1] > currentWeek[1]) {
 			currentWeek = [d3.timeWeek.floor(currentSelection[1]), d3.timeWeek.ceil(currentSelection[1])];
-		} else {
-			currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[1])];
 		}
 
 		if (currentWeek[0] <= x.domain()[0] || currentWeek[1] >= x.domain()[1]) {
 			return;
 		}
-		
+
 		dateFmt = d3.timeFormat("%Y/%m/%d"),
 		setSubtitle("Week: " + dateFmt(currentWeek[0]) + " - " + dateFmt(currentWeek[1]));
 
 		d3.select(this).call(brush.move, currentWeek.map(x));
-
-
 
 	}
 
@@ -137,7 +150,6 @@ var Chart = function() {
         x = d3.scaleTime().rangeRound([0, width]);
         y = d3.scaleLinear().range([height, 0]);
 
-
 		// get # weeks in fullDateRange
 		weeks = Math.round((new Date(dateRange.max)-new Date(dateRange.min))/ MILLISECONDS_PER_WEEK);
 
@@ -145,6 +157,10 @@ var Chart = function() {
 		xAxis = d3.axisBottom(x)
 		.tickFormat(customTimeFormat)
 		.ticks(weeks);
+
+        // init x axis
+		xAxis2 = d3.axisBottom(x)
+		.tickFormat(customTimeFormat2);
 
 		// init y axis
 		yAxis = d3.axisLeft(y).ticks(3);
@@ -158,7 +174,6 @@ var Chart = function() {
 	var render = function(data, dates) {
 
 		var bar,
-			dateRange = dates,
 			dateFmt;
 
 		// add svg viewport
