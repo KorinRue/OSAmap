@@ -19,20 +19,11 @@ var Chart = function() {
 	
 	var customTimeFormat = function (date) {
 
-		var formatMillisecond = d3.timeFormat(".%L"),
-		formatSecond = d3.timeFormat(":%S"),
-		formatMinute = d3.timeFormat("%I:%M"),
-		formatHour = d3.timeFormat("%I %p"),
-		formatDay = d3.timeFormat("%a %d"),
-		formatWeek = d3.timeFormat("%d"),
-		formatMonth = d3.timeFormat("%b"),
-		formatYear = d3.timeFormat("%Y");
+		var	formatWeek = d3.timeFormat("%-d"),
+			formatMonth = d3.timeFormat("%b"),
+			formatYear = d3.timeFormat("%Y");
 
-		return (d3.timeSecond(date) < date ? formatMillisecond
-		: d3.timeMinute(date) < date ? formatSecond
-		: d3.timeHour(date) < date ? formatMinute
-		: d3.timeDay(date) < date ? formatHour
-		: d3.timeWeek(date) < date ? formatDay
+		return (d3.timeWeek(date) < date ? formatDay
 		: d3.timeMonth(date) <= date ? formatWeek
 		: d3.timeYear(date) <= date ? formatMonth
 		: formatYear)(date);
