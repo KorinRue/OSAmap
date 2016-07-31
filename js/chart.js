@@ -94,6 +94,19 @@ var Chart = function() {
 		$('.precipitation').html(title);
 	}
 
+	/*
+	function adjustTextLabels(selection) {
+		selection.selectAll('.major text')
+		.attr('transform', 'translate(' + daysToPixels(1) / 2 + ',0)');
+	}
+
+	function daysToPixels(days, timeScale) {
+	 	var d1 = new Date();
+	 	timeScale || (timeScale = Global.timeScale);
+		return timeScale(d3.timeWeek.offset(d1, days)) - timeScale(d1);
+	}
+	*/
+
 	var initialize = function(dateRange) {
 
 		var weeks, dateFmt;
@@ -131,8 +144,8 @@ var Chart = function() {
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
 		.attr("width", "95%")
-		.attr("height", 100)
-		.attr("viewBox", "0 0 900 100")
+		.attr("height", 125)
+		.attr("viewBox", "0 0 900 125")
 		.attr("preserveAspectRatio", "none");
 
 		// add context (the chart container)
@@ -160,6 +173,12 @@ var Chart = function() {
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
 		.call(xAxis);
+
+		// render x axis 2
+		context.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + (height + 25) + ")")
+		.call(xAxis2);
 
 		// get bar width
 		barWidth = width / data.length;
