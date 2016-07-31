@@ -120,13 +120,24 @@ svg {
 .axis path,
 .axis line {
   fill: none;
-  stroke: #BBB;
+  stroke: #DDD;
+}
+
+.axis2 line,
+.axis2 path {
+  fill: none;
+  stroke: #FFF;
+}
+
+.axis text, 
+.axis2 text {
+  fill: #999;
 }
 
 .bar {
 	fill: #81B7DB;
 	stroke: #81B7DB;
-  	shape-rendering: crispEdges;
+  shape-rendering: crispEdges;
 }
 
 .brush .extent {

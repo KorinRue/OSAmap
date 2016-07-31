@@ -94,12 +94,13 @@ var Chart = function() {
 		$('.precipitation').html(title);
 	}
 
-	/*
 	function adjustTextLabels(selection) {
-		selection.selectAll('.major text')
-		.attr('transform', 'translate(' + daysToPixels(1) / 2 + ',0)');
+		selection.selectAll('.axis2 text')
+		.attr('transform', 'translate(' + 35 + ',0)');
+		//.attr('transform', 'translate(' + daysToPixels(1) / 2 + ',0)');
 	}
 
+	/*
 	function daysToPixels(days, timeScale) {
 	 	var d1 = new Date();
 	 	timeScale || (timeScale = Global.timeScale);
@@ -176,9 +177,10 @@ var Chart = function() {
 
 		// render x axis 2
 		context.append("g")
-		.attr("class", "x axis")
-		.attr("transform", "translate(0," + (height + 25) + ")")
-		.call(xAxis2);
+		.attr("class", "x axis2")
+		.attr("transform", "translate(0," + (height + 17) + ")")
+		.call(xAxis2)
+		.call(adjustTextLabels);
 
 		// get bar width
 		barWidth = width / data.length;
