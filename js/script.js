@@ -15,10 +15,7 @@ $(document).ready(function() {
 			"URL": "http://www.ncdc.noaa.gov/cdo-web/api/v2/data",
 			"TOKEN": "zuaINMzpFJTIwKVgRhCBNSUQggvWkpUX"
 		},
-		SELECTED_DATE_RANGE = {
-			min: "2015-05-31",
-			max: "2015-06-07"
-		},
+		INITIAL_DATE_RANGE = ["2015-05-31", "2015-06-07"],
 	
 	// Variables
 		dataLayer,
@@ -112,13 +109,17 @@ $(document).ready(function() {
 			format: "GeoJSON"
 		};
 		if (dates !== null) {
-			params.q = params.q + " WHERE date >= '" + dates.min + "' AND date <= '" + dates.max + "'";
+			params.q = params.q + " WHERE date >= '" + dates[0] + "' AND date <= '" + dates[1] + "'";
 		}
 		return params;
 	}
 
 	// render the map
 	function renderMap(map, dates) {
+
+		if (typeof dates === "undefined") {
+			return;
+		}
 		
 		var url = CARTODB["URL"] + $.param( getUrlParams(dates) );
 			
@@ -176,7 +177,6 @@ $(document).ready(function() {
 		});
 	}
 
-
 	/* 
 	   Main routine:
 	   1. get date range from cartoDB
@@ -184,13 +184,15 @@ $(document).ready(function() {
 	   3. render the chart
 	   4. render the map
 	*/
-	map = initializeMap();
 	getDateRange().then(function(dateRange) {
 		getPrecipData(dateRange).then(function(data) {
-			var chart = Chart();
-			chart.initialize(dateRange, map);
-			chart.render(data, SELECTED_DATE_RANGE, renderMap);
-			renderMap(map, dateRange);
+			var chart = Chart(),
+				map = initializeMap();
+			chart.initialize(dateRange);
+			chart.render(data, function(dates) { 
+				renderMap(map, dates); 
+			});
+			renderMap(map, INITIAL_DATE_RANGE);
 		});
 	});
 });

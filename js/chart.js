@@ -15,8 +15,7 @@ var Chart = function() {
 		context,
 		bar,
 		barWidth,
-		dateRange,
-		precipMap;
+		dateRange;
 	
 	var customTimeFormat = function (date) {
 
@@ -75,6 +74,13 @@ var Chart = function() {
 		return({min: minDate, max: maxDate});
 
 	}
+
+	var updateWeekDisplay = function(week) {
+
+		var dateFmt = d3.timeFormat("%Y/%m/%d");
+		setSubtitle("Week: " + dateFmt(week[0]) + " - " + dateFmt(week[1]));
+
+	}
 	
 	var brushstart = function() {
 
@@ -87,7 +93,7 @@ var Chart = function() {
 
 	var brushmove = function() {
 
-		var dateFmt, currentDate, weekDomain;
+		var currentDate, weekDomain;
 		
 		if (!d3.event.sourceEvent || d3.event.sourceEvent.type === "brush") {
 			return;
@@ -107,20 +113,19 @@ var Chart = function() {
 			return;
 		}
 
-		dateFmt = d3.timeFormat("%Y/%m/%d"),
-		setSubtitle("Week: " + dateFmt(currentWeek[0]) + " - " + dateFmt(currentWeek[1]));
-
 		d3.select(this).call(brush.move, currentWeek.map(x));
+
+		updateWeekDisplay(currentWeek);
 
 	}
 
-	var brushend = function(drawMap) {
+	var brushend = function(renderMap) {
 
-		if (! d3.event.selection) {
-			return;
+		var dateFmt = d3.timeFormat("%Y-%m-%d");
+
+		if (typeof currentWeek !== "undefined") {
+			renderMap([dateFmt(currentWeek[0]), dateFmt(currentWeek[1])]);
 		}
-
-		drawMap(precipMap, xBoundsSelected());
 
 	}
 	
@@ -132,11 +137,10 @@ var Chart = function() {
 		$('.precipitation').html(title);
 	}
 
-	var initialize = function(dateRange, map) {
+	var initialize = function(dateRange) {
+
 		var weeks, dateFmt;
 		
-		precipMap = map
-
         // init margins
         margin = {top: 430, right: 20, bottom: 0, left: 20};
 
@@ -167,13 +171,6 @@ var Chart = function() {
 		dateFmt = d3.timeFormat("%Y/%m/%d");
 		setTitle("Precipitation: " + dateFmt(new Date(dateRange.min)) + " - " + dateFmt(new Date(dateRange.max)));
 
-	}
-
-	var render = function(data, dates, renderMap) {
-
-		var bar,
-			dateFmt;
-
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
 		.attr("width", "95%")
@@ -185,6 +182,12 @@ var Chart = function() {
 		context = svg.append("g")
 		.attr("class", "context")
 		.attr("transform", "translate(" + margin.left + "," + 0 + ")");
+
+	}
+
+	var render = function(data, renderMap) {
+
+		var bar, dateFmt;
 
 		// set domains: x is min to max date, y is 0 to max precip
 		x.domain(d3.extent(data.map(function(d) { return new Date(d.date); })));
@@ -224,17 +227,14 @@ var Chart = function() {
 		.extent([ [0, 0], [width, height] ])
 		.on("start", brushstart)
 		.on("brush", brushmove)
-		.on("end", function(){ brushend(renderMap) });
+		.on("end", function() { 
+			brushend(renderMap);
+		});
 		
 		// init brush group
 		var brushG = context.append("g")
 		.attr("class", "brush")
-		.call(brush)
-		.call(brush.move, function() {
-			dateFmt = d3.timeFormat("%Y/%m/%d");
-			setSubtitle("Week: " + dateFmt(new Date(dates.min)) + " - " + dateFmt(new Date(dates.max)));
-			return [new Date(dates.min),new Date(dates.max)].map(x);
-		});
+		.call(brush);
 
 		// remove handles to lock the brush at a week
 		d3.selectAll("g.brush rect.handle").remove();
@@ -243,6 +243,7 @@ var Chart = function() {
 
 	return {
 		initialize: initialize,
+		updateWeekDisplay: updateWeekDisplay,
 		render: render
 	}
 
