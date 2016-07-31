@@ -83,17 +83,11 @@ var Chart = function() {
 	}
 	
 	var brushstart = function() {
-
-		startDate = d3.event.selection.map(x.invert);
-		startWeek = [d3.timeWeek.floor(startDate[1]), d3.timeWeek.ceil(startDate[1])];
-		currentWeek = startWeek;
-
 	}
-	
 
 	var brushmove = function() {
 
-		var currentDate, weekDomain;
+		var currentDate;
 		
 		if (!d3.event.sourceEvent || d3.event.sourceEvent.type === "brush") {
 			return;
@@ -101,16 +95,11 @@ var Chart = function() {
 
 		currentSelection = d3.event.selection.map(x.invert);
 		currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
-		weekDomain = [d3.timeWeek.ceil(x.domain()[0]), d3.timeWeek.floor(x.domain()[1])];
 
 		if (currentSelection[0] < currentWeek[0]) {
 			currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
 		} else if (currentSelection[1] > currentWeek[1]) {
 			currentWeek = [d3.timeWeek.floor(currentSelection[1]), d3.timeWeek.ceil(currentSelection[1])];
-		}
-
-		if (currentWeek[0] <= x.domain()[0] || currentWeek[1] >= x.domain()[1]) {
-			return;
 		}
 
 		d3.select(this).call(brush.move, currentWeek.map(x));
@@ -225,7 +214,6 @@ var Chart = function() {
 		// init brush
 		brush = d3.brushX()
 		.extent([ [0, 0], [width, height] ])
-		.on("start", brushstart)
 		.on("brush", brushmove)
 		.on("end", function() { 
 			brushend(renderMap);
