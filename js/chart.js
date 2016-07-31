@@ -32,38 +32,15 @@ var Chart = function() {
 	
 	var customTimeFormat2 = function (date) {
 
-		var formatMillisecond = d3.timeFormat(".%L"),
-		formatSecond = d3.timeFormat(":%S"),
-		formatMinute = d3.timeFormat("%I:%M"),
-		formatHour = d3.timeFormat("%I %p"),
-		formatDay = d3.timeFormat("%a %d"),
-		formatWeek = d3.timeFormat("%d"),
-		formatMonth = d3.timeFormat("%b"),
-		formatYear = d3.timeFormat("%Y");
+		var	formatMonth = d3.timeFormat("%b"),
+			formatYear = d3.timeFormat("%Y");
 
-		return (d3.timeYear(date) <= date ? formatMonth
-		: formatYear)(date);
+		return (d3.timeYear(date) <= date ? formatMonth: formatYear)(date);
 
 	}
 	
 	var usingPrecip = function(data) {
 		return data.value;
-	}
-
-	var yBounds = function(data) {
-		return ({ min: d3.min(data, usingPrecip), max: d3.max(data, usingPrecip) });
-	}
-
-	var xBoundsSelected = function() {
-
-		var domain = d3.event.selection.map(x.invert),
-			date1 = domain[0],
-			date2 = domain[1],
-			minDate = date1.getFullYear() + "-" + (date1.getMonth() + 1) + "-" + date1.getDate(),
-			maxDate = date2.getFullYear() + "-" + (date2.getMonth() + 1) + "-" + date2.getDate();
-
-		return({min: minDate, max: maxDate});
-
 	}
 
 	var updateWeekDisplay = function(week) {
