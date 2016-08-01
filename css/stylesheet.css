@@ -130,6 +130,7 @@ svg {
 
 .axis2 line,
 .axis2 path {
+  visibility: hidden;
   fill: none;
   stroke: #000;
   font: 20px sans-serif;
