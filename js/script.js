@@ -9,20 +9,11 @@ $(document).ready(function() {
 			"QUERY": "SELECT * FROM all_sites_2015",
 			"DATE_QUERY": "SELECT MIN(date),MAX(date) FROM all_sites_2015"
 		},
-		
-		// gus's noaa token
-		NOAA = {
-			"URL": "http://www.ncdc.noaa.gov/cdo-web/api/v2/data",
-			"TOKEN": "zuaINMzpFJTIwKVgRhCBNSUQggvWkpUX"
-		},
 		INITIAL_DATE_RANGE = ["2015-05-31", "2015-06-07"],
-	
-	// Variables
 		dataLayer,
+		noaa,
+		chart,
 		map;
-
-
-	// Functions
 	
 	/* get min and max dates from map dataset */
 	function getDateRange() {
@@ -41,36 +32,6 @@ $(document).ready(function() {
 		});
 	}
 	
-	// get noaa precip data for a date range
-    function getPrecipData(dateRange) {	
-	    var noaa_playload = {
-	            datasetid: "GHCND",
-	            stationid: "GHCND:USW00094789",
-	            startdate: dateRange.min,
-	            enddate: dateRange.max,
-	            datatypeid: "PRCP",
-	            limit: "1000",
-	            includemetadata: "false",
-	            units: "standard"
-	        };
-        return new Promise( function(resolve, reject) {
-            $.ajax({
-                url: NOAA["URL"],
-                type: "GET",
-                data: noaa_playload,
-                headers: {"token": NOAA["TOKEN"],},
-            })
-            .done(function(data, textStatus, jqXHR) {
-                resolve(data.results);
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                reject("errors:" + errorThrown)
-            })
-            .always(function() {
-                /* ... */
-            });
-        });
-    }
 
 	// initialize the map
 	function initializeMap() {
@@ -189,10 +150,12 @@ $(document).ready(function() {
 	   3. render the chart
 	   4. render the map
 	*/
+
 	getDateRange().then(function(dateRange) {
-		getPrecipData(dateRange).then(function(data) {
-			var chart = Chart(),
-				map = initializeMap();
+		noaa = NOAA();
+		noaa.getPrecipData(dateRange).then(function(data) {
+			chart = Chart(),
+			map = initializeMap();
 			chart.initialize(dateRange);
 			chart.render(data, function(dates) { 
 				renderMap(map, dates); 
