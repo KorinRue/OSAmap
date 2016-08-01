@@ -116,7 +116,7 @@ $(document).ready(function() {
 
 	function parseDate(dateStr) {
 		var [y,m,d] = dateStr.split("-");
-		return (new Date(y,m,d));
+		return (new Date(y, parseInt(m)-1, d));
 	}
 
 	// render the map
