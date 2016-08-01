@@ -114,6 +114,11 @@ $(document).ready(function() {
 		return params;
 	}
 
+	function parseDate(dateStr) {
+		var [y,m,d] = dateStr.split("-");
+		return (new Date(y,m,d));
+	}
+
 	// render the map
 	function renderMap(map, dates) {
 
@@ -191,8 +196,9 @@ $(document).ready(function() {
 			chart.initialize(dateRange);
 			chart.render(data, function(dates) { 
 				renderMap(map, dates); 
-			});
+			}, [parseDate(INITIAL_DATE_RANGE[0]), parseDate(INITIAL_DATE_RANGE[1])] );
 			renderMap(map, INITIAL_DATE_RANGE);
 		});
 	});
 });
+

@@ -156,7 +156,7 @@ var Chart = function() {
 
 	}
 
-	var render = function(data, renderMap) {
+	var render = function(data, renderMap, initialDates) {
 
 		var bar, dateFmt;
 
@@ -214,11 +214,12 @@ var Chart = function() {
 		.on("end", function() { 
 			brushend(renderMap);
 		});
-		
-		// init brush group
+
+		// init brush group and set initial brush location
 		var brushG = context.append("g")
 		.attr("class", "brush")
-		.call(brush);
+		.call(brush)
+		.call(brush.move, initialDates.map(x));
 
 		// remove handles to lock the brush at a week
 		d3.selectAll("g.brush rect.handle").remove();
