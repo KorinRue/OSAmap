@@ -113,11 +113,11 @@ var Chart = function() {
 		var weeks, dateFmt;
 		
         // init margins
-        margin = {top: 430, right: 20, bottom: 0, left: 20};
+        margin = {top: 430, right: 20, bottom: 0, left: 40};
 
         // init width and height
         width = 900 - margin.left - margin.right;
-        height = 500 - margin.top - margin.bottom;
+        height = 480 - margin.top - margin.bottom;
 
         // init x and y
         x = d3.scaleTime().rangeRound([0, width]);
@@ -144,9 +144,9 @@ var Chart = function() {
 
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
-		.attr("width", "95%")
-		.attr("height", 125)
-		.attr("viewBox", "0 0 900 125")
+		.attr("width", "90%")
+		.attr("height", 90)
+		.attr("viewBox", "0 0 900 90")
 		.attr("preserveAspectRatio", "none");
 
 		// add context (the chart container)
@@ -181,6 +181,13 @@ var Chart = function() {
 		.attr("transform", "translate(0," + (height + 17) + ")")
 		.call(xAxis2)
 		.call(adjustTextLabels);
+
+		var padding = -40;
+		context.append("text")
+		.attr("class", "x title")
+		.attr("text-anchor", "middle")
+		.attr("transform", "translate("+ (padding/2) +","+(height/2)+")rotate(-90)")
+		.text("Precip (in.)");
 
 		// get bar width
 		barWidth = width / data.length;
