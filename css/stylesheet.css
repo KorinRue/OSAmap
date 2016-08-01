@@ -114,6 +114,12 @@ html, body {
   opacity: 1;
   padding-top: 10px;
   padding-bottom: 10px;
+  /*
+  background: -webkit-linear-gradient(bottom,rgba(0,0,0,0),rgba(0,0,0,1));
+  background: -o-linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,1));
+  background: -moz-linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,1));
+  background: linear-gradient(to top, rgba(0,0,0,0), rgba(0,0,0,1));
+  */
 }
 
 svg {
@@ -125,7 +131,7 @@ svg {
 .axis path,
 .axis line {
   fill: none;
-  stroke: #FFF;
+  stroke: #AAA;
 }
 
 .axis2 line,
@@ -137,11 +143,15 @@ svg {
 }
 
 .axis text {
-  fill: #FFF;
+  fill: #AAA;
 }
 
 .axis2 text {
-  fill: #FFF;
+  fill: #AAA;
+}
+
+.x.title {
+  fill: #AAA;
 }
 
 .bar {
@@ -175,6 +185,3 @@ svg {
   display:none;
 }
 
-.x.title {
-  fill: #FFF;
-}
