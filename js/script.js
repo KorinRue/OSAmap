@@ -1,4 +1,3 @@
-// Leaflet template
 $(document).ready(function() {
 		
 	var INITIAL_DATE_RANGE = ["2015-05-31", "2015-06-07"],
@@ -14,6 +13,9 @@ $(document).ready(function() {
 
 	map = Map();
 	map.initialize();
+	map.getEnteroRange().then(function(enteroRange) {
+		console.log(enteroRange);
+	});
 	map.getDateRange().then(function(dateRange) {
 		noaa = NOAA();
 		noaa.getPrecipData(dateRange).then(function(data) {

@@ -4,7 +4,8 @@ var Map = function() {
 			"USER": "korin",
 			"URL": "https://korin.cartodb.com/api/v2/sql?",
 			"QUERY": "SELECT * FROM all_sites_2015",
-			"DATE_QUERY": "SELECT MIN(date),MAX(date) FROM all_sites_2015"
+			"DATE_QUERY": "SELECT MIN(date),MAX(date) FROM all_sites_2015",
+			"ENTERO_QUERY": "SELECT MIN(entero),MAX(entero) FROM all_sites_2015"
 		},
 		BASEMAP_URL = 'https://api.mapbox.com/styles/v1/korin/cinyy74g70000aeni866flide/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoia29yaW4iLCJhIjoiY2luOWozYmYxMDBjdXYwa3ZxMnU4dm03MyJ9.Wcbx4hHyTfxP_GAan6jIKw',
 		ATTRIBUTION = '&copy; <a href=https://www.mapbox.com/about/maps/>Mapbox</a> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
@@ -70,6 +71,26 @@ var Map = function() {
 
 	}
 
+	var getEnteroRange = function() {
+
+	    return new Promise( function(resolve, reject) {
+
+			sql = new cartodb.SQL({ user: CARTODB["USER"]});
+
+			sql.execute(CARTODB["ENTERO_QUERY"])
+			.done(function(data) {
+				data.rows.forEach(function(e){
+					resolve({min: e.min, max: e.max});
+				})
+			})
+			.error(function(errors) {
+				reject("errors:" + errors)
+			});
+			
+		});
+
+	}
+
 	var render = function(map, dates) {
 
 		if (typeof dates === "undefined") {
@@ -77,7 +98,6 @@ var Map = function() {
 		}
 		
 		var url = CARTODB["URL"] + $.param( getUrlParams(dates) );
-			
 
 		$.getJSON(url)
 		.done(function(data) {
@@ -135,6 +155,7 @@ var Map = function() {
     return {
     	initialize: initialize,
     	getDateRange: getDateRange,
+    	getEnteroRange: getEnteroRange,
     	render: render
     }
 
