@@ -138,6 +138,9 @@ var Chart = function() {
 		// init y axis
 		yAxis = d3.axisLeft(y).ticks(3);
 
+		// init y axis
+		yAxis2 = d3.axisRight(y).ticks(3);
+
   		// set title
 		dateFmt = d3.timeFormat("%Y/%m/%d");
 		setTitle("Precipitation: " + dateFmt(new Date(dateRange.min)) + " - " + dateFmt(new Date(dateRange.max)));
@@ -169,6 +172,12 @@ var Chart = function() {
 		.attr("class", "y axis")
 		.call(yAxis);
 
+		// render y2 axis
+		context.append("g")
+		.attr("class", "y axis2")
+		.attr("transform", "translate(" + width + ",0)")
+		.call(yAxis2);
+
 		// render x axis
 		context.append("g")
 		.attr("class", "x axis")
@@ -178,11 +187,11 @@ var Chart = function() {
 		// render x axis 2
 		context.append("g")
 		.attr("class", "x axis2")
-		.attr("transform", "translate(0," + (height + 17) + ")")
+		.attr("transform", "translate(0," + (height + 12) + ")")
 		.call(xAxis2)
 		.call(adjustTextLabels);
 
-		var padding = -40;
+		var padding = -50;
 		context.append("text")
 		.attr("class", "x title")
 		.attr("text-anchor", "middle")
