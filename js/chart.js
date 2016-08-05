@@ -147,7 +147,7 @@ var Chart = function() {
 
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
-		.attr("width", "90%")
+		.attr("width", "800")
 		.attr("height", 90)
 		.attr("viewBox", "0 0 900 90")
 		.attr("preserveAspectRatio", "none");
