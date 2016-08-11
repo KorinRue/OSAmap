@@ -91,7 +91,7 @@ var Map = function() {
 
 	}
 
-	var render = function(map, dates) {
+	var render = function(dates) {
 
 		if (typeof dates === "undefined") {
 			return;
