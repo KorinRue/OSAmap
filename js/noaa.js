@@ -24,6 +24,7 @@ var NOAA = function() {
                 headers: {"token": NOAA["TOKEN"],},
             })
             .done(function(data, textStatus, jqXHR) {
+                console.log(data);
                 resolve(data.results);
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
