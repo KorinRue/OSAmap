@@ -23,8 +23,7 @@ var Chart = function() {
 			formatMonth = d3.timeFormat("%b"),
 			formatYear = d3.timeFormat("%Y");
 
-		return (d3.timeWeek(date) < date ? formatDay
-		: d3.timeMonth(date) <= date ? formatWeek
+		return (d3.timeMonth(date) <= date ? formatWeek
 		: d3.timeYear(date) <= date ? formatMonth
 		: formatYear)(date);
 

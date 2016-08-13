@@ -6,26 +6,28 @@ $(document).ready(function() {
 		map,
 		yearRange;
 
-	var getDefaults = function() {
-		var initialDateStr = "2015-06-01",
-			// hack to correct for time zone offset when getting new date
-			initialDate = new Date(initialDateStr + " 00:00:00"),
-			initialWeek = [d3.timeWeek.floor(initialDate), d3.timeWeek.ceil(initialDate)],
-			initialWeekStr = initialWeek.map(function(d){ return dateToDateStr(d) });
-			initialYear = [d3.timeYear.floor(initialDate), d3.timeYear.ceil(initialDate)],
-			initialYearStr = initialYear.map(function(d){ return dateToDateStr(d) }),
-			initialYearWeek = [d3.timeWeek.ceil(initialYear[0]), d3.timeWeek.floor(initialYear[1])],
-			initialYearWeekStr = initialYearWeek.map(function(d){ return dateToDateStr(d) });
-		return {
-			initialDateStr: initialDateStr,
-			initialDate: initialDate,
-			initialWeek: initialWeek,
-			initialWeekStr: initialWeekStr,
-			initialYear: initialYear,
-			initialYearStr: initialYearStr,
-			initialYearWeek: initialYearWeek,
-			initialYearWeekStr: initialYearWeekStr
-		}
+	var defaultYearDate = function() {
+		var year = $('.years').val(),
+			dateStr = year + "-06-01";
+		return new Date(dateStr + " 00:00:00");
+	}
+
+	var selectedYearRange = function() {
+		var date = defaultYearDate();
+		return [d3.timeYear.floor(date), d3.timeYear.ceil(date)];
+	}
+
+	var selectedYearRangeStr = function() {
+		return selectedYearRange().map(function(d){ return dateToDateStr(d) });
+	}
+
+	var selectedWeekRange = function() {
+		var date = defaultYearDate();
+		return [d3.timeWeek.floor(date), d3.timeWeek.ceil(date)];
+	}
+
+	var selectedWeekRangeStr = function() {
+		return selectedWeekRange().map(function(d){ return dateToDateStr(d) });
 	}
 
 	var dateToDateStr = function(d) {
@@ -49,38 +51,49 @@ $(document).ready(function() {
 	}
 
 	var insertYears = function(years) {
+		$('.years').html("");
 		for (var i = 0; i < years.length; i++) {
 			$('.years').append("<option value=" + years[i] + ">" + years[i] + "</option>");
 		}
+		$('.years').val("2015");
 	}
 
-	defaults = getDefaults();
-	/*
-	console.log(defaults.initialYearWeek.map( function(d) {
-		return dateToDateStr(d);
-	}));
-	*/
+	var render = function() {
+ 		noaa = NOAA();
+ 		noaa.getPrecipData(selectedYearRangeStr())
+ 		.then(function(data) {
+			chart = Chart();
+			chart.initialize(selectedYearRangeStr());
+			chart.render(data, function(dates) { map.render(dates) }, selectedWeekRange());
+			map.render(selectedWeekRangeStr());
+		});
+	}
+
+	// initialize map
 	map = Map();
 	map.initialize();
-	map.getEnteroRange().then(function(enteroRange) {
-		//console.log(enteroRange);
+
+	/* For future use
+	map.getEnteroRange()
+	.then(function(enteroRange) {
+		console.log(enteroRange);
 	});
-	map.getDateRange().then(function(dateRange) {
-		noaa = NOAA();
-		yearRange = getYearRange(dateRange);
-		insertYears($.unique(yearRange));
-  		noaa.getPrecipData(defaults.initialYearStr).then(function(data) {
-			chart = Chart();
-			chart.initialize(dateRange);
-			chart.render(data, function(dates) { 
-				map.render(dates); 
-			}, defaults.initialWeek);
-			map.render(defaults.initialWeekStr);
-		});
+	*/
+
+	// get all data then render chart and map
+	map.getDateRange()
+	.then(function(dateRange) {
+		insertYears(getYearRange(dateRange));
+		render();
 	});
 
-	$('select').select2({
-		minimumResultsForSearch: -1
+	// no live search required for year dropdown
+	// re-render chart and map whenever selected year changes
+	$('.years').select2({ minimumResultsForSearch: -1})
+	.on('change', function (evt) {
+		$('#chart').html("");
+		render();
 	});
+
 });
 
