@@ -60,7 +60,7 @@ var Map = function() {
 			.done(function(data) {
 				data.rows.forEach(function(d){
 					var format = d3.timeFormat("%Y-%m-%d");
-					resolve({min: format(d3.timeWeek.floor(new Date(d.min))), max: format(d3.timeWeek.ceil(new Date(d.max)))});
+					resolve([format(d3.timeWeek.floor(new Date(d.min))), format(d3.timeWeek.ceil(new Date(d.max)))]);
 				})
 			})
 			.error(function(errors) {

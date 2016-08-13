@@ -9,8 +9,8 @@ var NOAA = function() {
         var noaa_playload = {
                 datasetid: "GHCND",
                 stationid: "GHCND:USW00094789",
-                startdate: dateRange.min,
-                enddate: dateRange.max,
+                startdate: dateRange[0],
+                enddate: dateRange[1],
                 datatypeid: "PRCP",
                 limit: "1000",
                 includemetadata: "false",

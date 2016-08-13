@@ -124,7 +124,7 @@ var Chart = function() {
         y = d3.scaleLinear().range([height, 0]);
 
 		// get # weeks in fullDateRange
-		weeks = Math.round((new Date(dateRange.max)-new Date(dateRange.min))/ MILLISECONDS_PER_WEEK);
+		weeks = Math.round((new Date(dateRange[1])-new Date(dateRange[0]))/ MILLISECONDS_PER_WEEK);
 
         // init x axis
 		xAxis = d3.axisBottom(x)
@@ -143,7 +143,7 @@ var Chart = function() {
 
   		// set title
 		dateFmt = d3.timeFormat("%Y/%m/%d");
-		setTitle("Precipitation: " + dateFmt(new Date(dateRange.min)) + " - " + dateFmt(new Date(dateRange.max)));
+		setTitle("Precipitation: " + dateFmt(new Date(dateRange[0])) + " - " + dateFmt(new Date(dateRange[1])));
 
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
