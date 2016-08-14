@@ -107,11 +107,13 @@ html, body {
 
 #control-panel {
   position: absolute;
-  width: 95%;
+  width: 90%;
   background:rgba(0,0,0,0.7);
   z-index: 2;
   opacity: 1;
   border-radius: 10px;
+  margin-left: 10px;
+  margin-top: 10px;
 }
 
 #control-panel > .row {
