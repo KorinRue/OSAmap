@@ -119,22 +119,27 @@ html, body {
   height: 90px;
 }
 
+#spinner {
+  margin-left: 450px;
+  margin-top: 10px;
+  color: #888;
+}
+
 #dropdown-container {
-  padding-top: 30px;
-  padding-left: 30px;
+  display: table-cell;
   height: 90px;
-  display: inline-block;
+  padding-top: 30px;
   text-align: center;
   white-space: normal;
 }
 
 #chart {
-  display: inline-block;
+  display: table-cell;
   white-space: normal;
 }
 
 select.years {
-  width: 70px%;
+  min-width: 80px;
 }
 
 svg {

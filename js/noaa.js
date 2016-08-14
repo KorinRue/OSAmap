@@ -17,11 +17,15 @@ var NOAA = function() {
                 units: "standard"
             };
         return new Promise( function(resolve, reject) {
+           
             $.ajax({
                 url: NOAA["URL"],
                 type: "GET",
                 data: noaa_playload,
                 headers: {"token": NOAA["TOKEN"],},
+                beforeSend: function( xhr ) {
+                    $("#chart").html("<i id='spinner' class='fa fa-refresh fa-spin fa-3x fa-fw'></i><span class='sr-only'>Loading...</span>");
+                }
             })
             .done(function(data, textStatus, jqXHR) {
                 console.log(data);
@@ -31,7 +35,7 @@ var NOAA = function() {
                 reject("errors:" + errorThrown)
             })
             .always(function() {
-                /* ... */
+                $("#chart").html("");
             });
         });
     }
