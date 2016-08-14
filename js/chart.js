@@ -99,6 +99,10 @@ var Chart = function() {
 		//.attr('transform', 'translate(' + daysToPixels(1) / 2 + ',0)');
 	}
 
+	function sameDay(date) {
+		return date[0].getDay() === 0 && (date[0].toString() == date[1].toString());
+	}
+
 	/*
 	function daysToPixels(days, timeScale) {
 	 	var d1 = new Date();
@@ -223,7 +227,14 @@ var Chart = function() {
 			brushend(renderMap);
 		});
 
-		// init brush group and set initial brush location
+		// if the default selected date falls at the beginning of the week,
+		// then d3 will make start and end dates both be that date;
+		// so push the end date out 1 week to prevent that edge case.
+		if (sameDay(initialDates)) {
+			initialDates[1] = d3.timeWeek.offset(initialDates[1], 1);
+		}
+
+		// init brush group and set initial brush 
 		var brushG = context.append("g")
 		.attr("class", "brush")
 		.call(brush)
