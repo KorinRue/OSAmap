@@ -84,14 +84,18 @@ var Chart = function() {
 		$('.precipitation').html(title);
 	}
 
-	function adjustTextLabels(selection) {
+	var adjustTextLabels = function(selection) {
 		selection.selectAll('.axis2 text')
 		.attr('transform', 'translate(' + 35 + ',0)');
 		//.attr('transform', 'translate(' + daysToPixels(1) / 2 + ',0)');
 	}
 
-	function sameDay(date) {
+	var sameDay = function(date) {
 		return date[0].getDay() === 0 && (date[0].toString() == date[1].toString());
+	}
+
+	var nWeeks = function(dateRange) {
+		return d3.timeWeek.count(new Date(dateRange[0]), new Date(dateRange[1]))
 	}
 
 	/*
@@ -104,39 +108,31 @@ var Chart = function() {
 
 	var initialize = function(dateRange) {
 
-		var weeks, dateFmt;
+		var dateFmt = d3.timeFormat("%Y/%m/%d");
 		
         // init margins
-        margin = {top: 430, right: 20, bottom: 0, left: 40};
+        margin = {left: 40, right: 20}
 
         // init width and height
         width = 900 - margin.left - margin.right;
-        height = 480 - margin.top - margin.bottom;
+        height = 50;
 
-        // init x and y
+        // init x and y scales
         x = d3.scaleTime().rangeRound([0, width]);
         y = d3.scaleLinear().range([height, 0]);
 
-		// get # weeks in fullDateRange
-		weeks = d3.timeWeek.count(new Date(dateRange[0]), new Date(dateRange[1]));
-
-        // init x axis
+        // init x axes and ticks
 		xAxis = d3.axisBottom(x)
 		.tickFormat(customTimeFormat)
-		.ticks(weeks);
-
-        // init x axis
+		.ticks(nWeeks(dateRange));
 		xAxis2 = d3.axisBottom(x)
 		.tickFormat(customTimeFormat2);
 
-		// init y axis
+		// init y axes and ticks
 		yAxis = d3.axisLeft(y).ticks(3);
-
-		// init y axis
 		yAxis2 = d3.axisRight(y).ticks(3);
 
   		// set title
-		dateFmt = d3.timeFormat("%Y/%m/%d");
 		setTitle("Precipitation: " + dateFmt(new Date(dateRange[0])) + " - " + dateFmt(new Date(dateRange[1])));
 
 		// add svg viewport
