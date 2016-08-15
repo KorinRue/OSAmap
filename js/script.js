@@ -35,12 +35,6 @@ $(document).ready(function() {
 		return format(d);
 	}
 	
-	// takes "YYYY-MM-DD" string, returns new Date
-	var parseDate = function(dateStr) {
-		var [y,m,d] = dateStr.split("-");
-		return (new Date(y, parseInt(m)-1, d));
-	}
-
 	var getYearRange = function(dateRange) {
 		var years = [];
 			range = dateRange.map(function(d){return (new Date(d)).getFullYear()});
