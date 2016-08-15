@@ -150,7 +150,7 @@ var Chart = function() {
 
 	var render = function(data, renderMap, initialDates) {
 
-		var dateFmt;
+		var dateFmt, PADDING = -50;
 
 		// set domains: x is min to max date, y is 0 to max precip
 		x.domain(d3.extent(data.map(function(d) { return new Date(d.date); })));
@@ -161,11 +161,10 @@ var Chart = function() {
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
 		.call(xAxis);
-		var padding = -50;
 		context.append("text")
 		.attr("class", "x title")
 		.attr("text-anchor", "middle")
-		.attr("transform", "translate("+ (padding/2) +","+(height/2)+")rotate(-90)")
+		.attr("transform", "translate("+ (PADDING/2) +","+(height/2)+")rotate(-90)")
 		.text("Precip (in.)");
 		context.append("g")
 		.attr("class", "x axis2")
