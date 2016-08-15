@@ -11,7 +11,6 @@ var Chart = function() {
 		svg,
 		focus,
 		context,
-		bar,
 		barWidth,
 		dateRange;
 	
@@ -151,48 +150,41 @@ var Chart = function() {
 
 	var render = function(data, renderMap, initialDates) {
 
-		var bar, dateFmt;
+		var dateFmt;
 
 		// set domains: x is min to max date, y is 0 to max precip
 		x.domain(d3.extent(data.map(function(d) { return new Date(d.date); })));
 		y.domain([0, d3.max(data.map(function(d) { return d.value; }))]);
 
-		// render y axis
-		context.append("g")
-		.attr("class", "y axis")
-		.call(yAxis);
-
-		// render y2 axis
-		context.append("g")
-		.attr("class", "y axis2")
-		.attr("transform", "translate(" + width + ",0)")
-		.call(yAxis2);
-
-		// render x axis
+		// render x axes and month labels
 		context.append("g")
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
 		.call(xAxis);
-
-		// render x axis 2
-		context.append("g")
-		.attr("class", "x axis2")
-		.attr("transform", "translate(0," + (height + 12) + ")")
-		.call(xAxis2)
-		.call(adjustTextLabels);
-
 		var padding = -50;
 		context.append("text")
 		.attr("class", "x title")
 		.attr("text-anchor", "middle")
 		.attr("transform", "translate("+ (padding/2) +","+(height/2)+")rotate(-90)")
 		.text("Precip (in.)");
+		context.append("g")
+		.attr("class", "x axis2")
+		.attr("transform", "translate(0," + (height + 12) + ")")
+		.call(xAxis2)
+		.call(adjustTextLabels);
 
-		// get bar width
-		barWidth = width / data.length;
+		// render y axis and labels
+		context.append("g")
+		.attr("class", "y axis")
+		.call(yAxis);
+		context.append("g")
+		.attr("class", "y axis2")
+		.attr("transform", "translate(" + width + ",0)")
+		.call(yAxis2);
 
 		// render bars
-		bar = context.selectAll("rect")
+		barWidth = width / data.length;
+		context.selectAll("rect")
 		.data(data)
 		.enter()
 		.append("rect")
@@ -215,14 +207,14 @@ var Chart = function() {
 		});
 
 		// if the default selected date falls at the beginning of the week,
-		// then d3 will make start and end dates both be that date;
-		// so push the end date out 1 week to prevent that edge case.
+		// then d3 will set start and end dates to that date;
+		// so push the end date out 1 week to avoid that edge case.
 		if (sameDay(initialDates)) {
 			initialDates[1] = d3.timeWeek.offset(initialDates[1], 1);
 		}
 
 		// init brush group and set initial brush 
-		var brushG = context.append("g")
+		context.append("g")
 		.attr("class", "brush")
 		.call(brush)
 		.call(brush.move, initialDates.map(x));
