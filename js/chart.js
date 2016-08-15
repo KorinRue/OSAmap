@@ -1,7 +1,5 @@
 var Chart = function() {
 	
-	var MILLISECONDS_PER_WEEK = 604800000;
-
 	var margin, 
 		width, height,
 		x, y,
@@ -38,10 +36,6 @@ var Chart = function() {
 
 	}
 	
-	var usingPrecip = function(data) {
-		return data.value;
-	}
-
 	var updateWeekDisplay = function(week) {
 
 		var dateFmt = d3.timeFormat("%Y/%m/%d");
@@ -49,9 +43,6 @@ var Chart = function() {
 
 	}
 	
-	var brushstart = function() {
-	}
-
 	var brushmove = function() {
 
 		var currentDate;
@@ -127,7 +118,7 @@ var Chart = function() {
         y = d3.scaleLinear().range([height, 0]);
 
 		// get # weeks in fullDateRange
-		weeks = Math.round((new Date(dateRange[1])-new Date(dateRange[0]))/ MILLISECONDS_PER_WEEK);
+		weeks = d3.timeWeek.count(new Date(dateRange[0]), new Date(dateRange[1]));
 
         // init x axis
 		xAxis = d3.axisBottom(x)
