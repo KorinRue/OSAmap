@@ -36,8 +36,10 @@ $(document).ready(function() {
 	}
 	
 	var getYearRange = function(dateRange) {
-		var years = [];
-			range = dateRange.map(function(d){return (new Date(d)).getFullYear()});
+		var years = [], range;
+		range = dateRange.map(function(d){
+			return (new Date(d + " 00:00:00")).getFullYear();
+		});
 		for (var i = range[0]; i <= range[1]; i++) {
 			years.push(i).toString();
 		}
