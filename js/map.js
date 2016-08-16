@@ -136,11 +136,11 @@ var Map = function() {
 					}
 
 					//conditional to color points based on enterococcus counts
-					if (feature.properties.entero > 105) {
+					if (feature.properties.enterococcus > 34) {
 						style.fillColor = '#fdae61';
 					}
 
-					if (feature.properties.entero > 640) {
+					if (feature.properties.enterococcus > 104) {
 						style.fillColor = '#d7191c';
 					}
 
