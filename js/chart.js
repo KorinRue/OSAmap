@@ -1,24 +1,17 @@
 var Chart = function() {
 	
-	var margin, 
-		width, height,
+	var width, height,
 		x, y,
-		xAxis, xAxis2, yAxis,
-		startDomain,
-		startDate,
-		startWeek,
+		xAxis, xAxis2, yAxis, yAxis2,
 		brush,
-		svg,
-		focus,
 		context,
-		barWidth,
-		dateRange,
 		util;
 	
 	// return formatted dates for x axis
 	var customTimeFormat = function (date) {
 
-		var	formatWeek = d3.timeFormat("%-d"),
+		var	margin
+			formatWeek = d3.timeFormat("%-d"),
 			formatMonth = d3.timeFormat("%b"),
 			formatYear = d3.timeFormat("%Y");
 
@@ -45,7 +38,7 @@ var Chart = function() {
 
 	}
 	
-	// handle user's move of brush (aka "slider")
+	// handle move of brush (aka "slider"): enforce snapping between weeks and update week display
 	var brushmove = function() {
 
 		var currentDate;
@@ -69,7 +62,7 @@ var Chart = function() {
 
 	}
 
-	// handle user's release of brush (aka "slider"), update the map with the selected dates
+	// handle release of brush (aka "slider"): update the map with the selected dates
 	var brushend = function(renderMap) {
 
 		if (typeof currentWeek !== "undefined") {
@@ -79,13 +72,13 @@ var Chart = function() {
 	}
 	
 	// display title
-	var setSubtitle = function(subTitle) {
-		$('.precipitation_subtitle').html(subTitle);
+	var setTitle = function(title) {
+		$('.precipitation').html(title);
 	}
 
 	// display subtitle
-	var setTitle = function(title) {
-		$('.precipitation').html(title);
+	var setSubtitle = function(subTitle) {
+		$('.precipitation_subtitle').html(subTitle);
 	}
 
 	// move month labels on x axis to center of month ... sort of.  it's a hack.
@@ -102,7 +95,7 @@ var Chart = function() {
 
 	// given a date range, return number of Sun <-> Sun weeks it contains
 	var nWeeks = function(dateRange) {
-		return d3.timeWeek.count(new Date(dateRange[0]), new Date(dateRange[1]))
+		return d3.timeWeek.count(dateRange[0], dateRange[1])
 	}
 
 	/*
@@ -115,6 +108,8 @@ var Chart = function() {
 
 	// initialize chart with axes and ticks but no data
 	var initialize = function(dateRange) {
+
+		var margin, svg;
 
 		util = Util();
 		
@@ -160,7 +155,8 @@ var Chart = function() {
 	// given preceip data, a callback to render map when dates change, and initial dates, render the chart
 	var render = function(data, renderMap, initialDates) {
 
-		var PADDING = -50;
+		var PADDING = -50,
+			barWidth;
 
 		// set domains: x is min to max date, y is 0 to max precip
 		x.domain(d3.extent(data.map(function(d) { return new Date(d.date); })));
