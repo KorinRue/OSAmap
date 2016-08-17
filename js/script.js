@@ -1,44 +1,35 @@
 $(document).ready(function() {
 		
 	var defaults,
+		util,
 		noaa,
 		chart,
 		map,
 		yearRange;
 
+	// default selected date for any user-selected year is Jun 1
 	var defaultYearDate = function() {
-		var year = $('.years').val(),
-			dateStr = year + "-06-01";
-		return new Date(dateStr + " 00:00:00");
+		var year = $('.years').val();
+		return new Date(year, 5, 1);
 	}
 
-	var selectedYearRange = function() {
-		var date = defaultYearDate();
-		return [d3.timeYear.floor(date), d3.timeYear.ceil(date)];
-	}
-
-	var selectedYearRangeStr = function() {
-		return selectedYearRange().map(function(d){ return dateToDateStr(d) });
-	}
-
+	// Sun <-> Sun week that contains default selected date
 	var selectedWeekRange = function() {
 		var date = defaultYearDate();
 		return [d3.timeWeek.floor(date), d3.timeWeek.ceil(date)];
 	}
 
-	var selectedWeekRangeStr = function() {
-		return selectedWeekRange().map(function(d){ return dateToDateStr(d) });
-	}
-
-	var dateToDateStr = function(d) {
-		var format = d3.timeFormat("%Y-%m-%d");
-		return format(d);
+	// Jan 1 <-> Dec 31 year that contains default selected date
+	var selectedYearRange = function() {
+		var date = defaultYearDate();
+		return [d3.timeYear.floor(date), d3.timeYear.ceil(date)];
 	}
 	
+	// given min/max years pulled from carto, return array of all years (for dropdown)
 	var getYearRange = function(dateRange) {
 		var years = [], range;
 		range = dateRange.map(function(d){
-			return (new Date(d + " 00:00:00")).getFullYear();
+			return (d.getFullYear());
 		});
 		for (var i = range[0]; i <= range[1]; i++) {
 			years.push(i).toString();
@@ -46,6 +37,7 @@ $(document).ready(function() {
 		return years;
 	}
 
+	// insert years into dropdown
 	var insertYears = function(years) {
 		$('.years').html("");
 		for (var i = 0; i < years.length; i++) {
@@ -54,14 +46,16 @@ $(document).ready(function() {
 		$('.years').val("2015");
 	}
 
+	// get noaa data for selected year, render chart and map
 	var render = function() {
+		util = Util();
  		noaa = NOAA();
- 		noaa.getPrecipData(selectedYearRangeStr())
+ 		noaa.getPrecipData(selectedYearRange())
  		.then(function(data) {
 			chart = Chart();
-			chart.initialize(selectedYearRangeStr());
+			chart.initialize(selectedYearRange());
 			chart.render(data, function(dates) { map.render(dates) }, selectedWeekRange());
-			map.render(selectedWeekRangeStr());
+			map.render(selectedWeekRange());
 		});
 	}
 
@@ -76,20 +70,25 @@ $(document).ready(function() {
 	});
 	*/
 
-	// get all data then render chart and map
+	// get date range from carto
 	map.getDateRange()
 	.then(function(dateRange) {
+
+		// insert date range years into dropdown
 		insertYears(getYearRange(dateRange));
+
+		// render chart and map
 		render();
+
+		// re-render chart and map whenever selected year changes
+		$('.years').select2({ minimumResultsForSearch: -1})
+		.on('change', function (evt) {
+			$('#chart').html("");
+			render();
+		});
+
 	});
 
-	// no live search required for year dropdown
-	// re-render chart and map whenever selected year changes
-	$('.years').select2({ minimumResultsForSearch: -1})
-	.on('change', function (evt) {
-		$('#chart').html("");
-		render();
-	});
 
 });
 

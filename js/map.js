@@ -10,8 +10,10 @@ var Map = function() {
 		BASEMAP_URL = 'https://api.mapbox.com/styles/v1/korin/cinyy74g70000aeni866flide/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoia29yaW4iLCJhIjoiY2luOWozYmYxMDBjdXYwa3ZxMnU4dm03MyJ9.Wcbx4hHyTfxP_GAan6jIKw',
 		ATTRIBUTION = '&copy; <a href=https://www.mapbox.com/about/maps/>Mapbox</a> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
 		leafletMap,
-		dataLayer;
+		dataLayer,
+		util;
 
+	// given start and end dates, return WHERE clause for carto sql query
 	var getUrlParams = function(dates) {
 
 		var params = {
@@ -26,7 +28,10 @@ var Map = function() {
 		return params;
 	}
 
+	// initialize map with no data
 	var initialize = function() {
+
+		util = Util();
 					
 		// NYC-centered map
 		leafletMap = L.map('map', {
@@ -50,6 +55,7 @@ var Map = function() {
 
 	}
 
+	// get date range from carto
 	var getDateRange = function() {
 
 	    return new Promise( function(resolve, reject) {
@@ -59,8 +65,9 @@ var Map = function() {
 			sql.execute(CARTODB["DATE_QUERY"])
 			.done(function(data) {
 				data.rows.forEach(function(d){
-					var format = d3.timeFormat("%Y-%m-%d");
-					resolve([format(d3.timeWeek.floor(new Date(d.min))), format(d3.timeWeek.ceil(new Date(d.max)))]);
+					var minDate = d3.timeYear.floor(new Date(d.min)),
+						maxDate = d3.timeDay.offset(d3.timeYear.ceil(new Date(d.max)), -1);
+					resolve([minDate, maxDate]);
 				})
 			})
 			.error(function(errors) {
@@ -71,6 +78,7 @@ var Map = function() {
 
 	}
 
+	// get enterococcus range from carto
 	var getEnteroRange = function() {
 
 	    return new Promise( function(resolve, reject) {
@@ -91,11 +99,14 @@ var Map = function() {
 
 	}
 
+	// render map
 	var render = function(dates) {
 
 		if (typeof dates === "undefined") {
 			return;
 		}
+
+		dates = dates.map(function(d){return util.formattedDate(d, '-')});
 		
 		var url = CARTODB["URL"] + $.param( getUrlParams(dates) );
 

@@ -12,8 +12,10 @@ var Chart = function() {
 		focus,
 		context,
 		barWidth,
-		dateRange;
+		dateRange,
+		util;
 	
+	// return formatted dates for x axis
 	var customTimeFormat = function (date) {
 
 		var	formatWeek = d3.timeFormat("%-d"),
@@ -26,6 +28,7 @@ var Chart = function() {
 
 	}
 	
+	// return formatted months for x axis
 	var customTimeFormat2 = function (date) {
 
 		var	formatMonth = d3.timeFormat("%b"),
@@ -35,13 +38,14 @@ var Chart = function() {
 
 	}
 	
+	// display selected week
 	var updateWeekDisplay = function(week) {
 
-		var dateFmt = d3.timeFormat("%Y/%m/%d");
-		setSubtitle("Week: " + dateFmt(week[0]) + " - " + dateFmt(week[1]));
+		setSubtitle("Week: " + util.formattedDate(week[0], '/') + " - " + util.formattedDate(week[1], '/'));
 
 	}
 	
+	// handle user's move of brush (aka "slider")
 	var brushmove = function() {
 
 		var currentDate;
@@ -65,34 +69,38 @@ var Chart = function() {
 
 	}
 
+	// handle user's release of brush (aka "slider"), update the map with the selected dates
 	var brushend = function(renderMap) {
 
-		var dateFmt = d3.timeFormat("%Y-%m-%d");
-
 		if (typeof currentWeek !== "undefined") {
-			renderMap([dateFmt(currentWeek[0]), dateFmt(currentWeek[1])]);
+			renderMap([currentWeek[0], currentWeek[1]]);
 		}
 
 	}
 	
+	// display title
 	var setSubtitle = function(subTitle) {
 		$('.precipitation_subtitle').html(subTitle);
 	}
 
+	// display subtitle
 	var setTitle = function(title) {
 		$('.precipitation').html(title);
 	}
 
+	// move month labels on x axis to center of month ... sort of.  it's a hack.
 	var adjustTextLabels = function(selection) {
 		selection.selectAll('.axis2 text')
 		.attr('transform', 'translate(' + 35 + ',0)');
 		//.attr('transform', 'translate(' + daysToPixels(1) / 2 + ',0)');
 	}
 
+	// does start date fall on a Sunday, and does end date equal start date?
 	var sameDay = function(date) {
 		return date[0].getDay() === 0 && (date[0].toString() == date[1].toString());
 	}
 
+	// given a date range, return number of Sun <-> Sun weeks it contains
 	var nWeeks = function(dateRange) {
 		return d3.timeWeek.count(new Date(dateRange[0]), new Date(dateRange[1]))
 	}
@@ -105,9 +113,10 @@ var Chart = function() {
 	}
 	*/
 
+	// initialize chart with axes and ticks but no data
 	var initialize = function(dateRange) {
 
-		var dateFmt = d3.timeFormat("%Y/%m/%d");
+		util = Util();
 		
         // init margins
         margin = {left: 40, right: 20}
@@ -132,7 +141,7 @@ var Chart = function() {
 		yAxis2 = d3.axisRight(y).ticks(3);
 
   		// set title
-		setTitle("Precipitation: " + dateFmt(new Date(dateRange[0])) + " - " + dateFmt(new Date(dateRange[1])));
+		setTitle("Precipitation: " + util.formattedDate(dateRange[0], '/') + " - " + util.formattedDate(dateRange[1], '/'));
 
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
@@ -148,9 +157,10 @@ var Chart = function() {
 
 	}
 
+	// given preceip data, a callback to render map when dates change, and initial dates, render the chart
 	var render = function(data, renderMap, initialDates) {
 
-		var dateFmt, PADDING = -50;
+		var PADDING = -50;
 
 		// set domains: x is min to max date, y is 0 to max precip
 		x.domain(d3.extent(data.map(function(d) { return new Date(d.date); })));
@@ -195,7 +205,12 @@ var Chart = function() {
 		.attr("height", function(d) { 
 			return height - y(d.value); 
 		})
-		.attr("width", barWidth - 1);
+		.attr("width", barWidth - 1)
+		.attr("data-toggle", "tooltip")
+		.attr("data-placement", "top")
+		.attr("title", "Tooltip on top");
+
+		$('[data-toggle="tooltip"]').tooltip(); 
 
 		// init brush
 		brush = d3.brushX()
