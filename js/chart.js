@@ -8,34 +8,20 @@ var Chart = function() {
 		util;
 	
 	// return formatted dates for x axis
-	var customTimeFormat = function (date) {
-
-		var	margin
-			formatWeek = d3.timeFormat("%-d"),
-			formatMonth = d3.timeFormat("%b"),
-			formatYear = d3.timeFormat("%Y");
-
-		return (d3.timeMonth(date) <= date ? formatWeek
-		: d3.timeYear(date) <= date ? formatMonth
-		: formatYear)(date);
-
+	var dayOfMonth = function (date) {
+		var	formatDayOfMonth = d3.timeFormat("%-d");
+		return formatDayOfMonth(date);
 	}
 	
 	// return formatted months for x axis
-	var customTimeFormat2 = function (date) {
-
-		var	formatMonth = d3.timeFormat("%b"),
-			formatYear = d3.timeFormat("%Y");
-
-		return (d3.timeYear(date) <= date ? formatMonth: formatYear)(date);
-
+	var month = function (date) {
+		var	formatMonth = d3.timeFormat("%b");
+		return formatMonth(date);
 	}
 	
 	// display selected week
 	var updateWeekDisplay = function(week) {
-
 		setSubtitle("Week: " + util.formattedDate(week[0], '/') + " - " + util.formattedDate(week[1], '/'));
-
 	}
 	
 	// handle move of brush (aka "slider"): enforce snapping between weeks and update week display
@@ -126,10 +112,10 @@ var Chart = function() {
 
         // init x axes and ticks
 		xAxis = d3.axisBottom(x)
-		.tickFormat(customTimeFormat)
+		.tickFormat(dayOfMonth)
 		.ticks(nWeeks(dateRange));
 		xAxis2 = d3.axisBottom(x)
-		.tickFormat(customTimeFormat2);
+		.tickFormat(month);
 
 		// init y axes and ticks
 		yAxis = d3.axisLeft(y).ticks(3);
