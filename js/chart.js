@@ -201,12 +201,7 @@ var Chart = function() {
 		.attr("height", function(d) { 
 			return height - y(d.value); 
 		})
-		.attr("width", barWidth - 1)
-		.attr("data-toggle", "tooltip")
-		.attr("data-placement", "top")
-		.attr("title", "Tooltip on top");
-
-		$('[data-toggle="tooltip"]').tooltip(); 
+		.attr("width", barWidth - 1);
 
 		// init brush
 		brush = d3.brushX()
