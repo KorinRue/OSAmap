@@ -144,6 +144,7 @@ var Map = function() {
 					//conditional to outline based on source
 					if (feature.properties.sampler == 'NYCWTA') {
 						style.color = 'white';
+						style.radius = 6;
 					}
 
 					//conditional to color points based on enterococcus counts

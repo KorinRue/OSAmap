@@ -64,24 +64,25 @@
     <div id="map"> </div>
     <div id="title">
       <div class="h1"> New York Harbor Water Quality Results </div>
-        This map shows 2015 water quality results from NYC Department of Environmental Protection <a href="http://www.nyc.gov/html/dep/html/harborwater/harbor_water_sampling_results.shtml">Harbor Survey</a> <span id="dep"></span> and from <a href="http://www.nycwatertrail.org/">NYC Water Trail Association</a> <span id="wta"></span>, a group of citizen scientists that test water in the harbor during the recreation season. <p> Use the time slider below to see water quality results throughout the year. Below the time slider is a chart of precipitation over the year.</p>
+        This map shows water quality results for Enterococcus, a sewage-indicating bacteria. Results are from NYC Department of Environmental Protection <a href="http://www.nyc.gov/html/dep/html/harborwater/harbor_water_sampling_results.shtml">Harbor Survey</a> <span id="dep"></span> and <a href="http://www.nycwatertrail.org/">NYC Water Trail Association</a> <span id="wta"></span>, a group of citizen scientists. DEP tests 90 sites monthly from November to April, and weekly from May to October. NYCWTA tests around 50 sites weekly from May to October.<p></p>
+        <p> Use the slider in the precipation chart to see weekly water quality results and the dropdown menu to change years. Precipitation data comes from NOAA data for Central Park.</p>
       </div>
     <div id="dateSlider"></div>
     <div id='legend'>
         <div id='legend-content'>
-        <strong>Water Quality Standards for Swimming</strong>
+        <strong>NYC Deptarment of Health's Water Quality Standards for Swimming</strong>
         <p></p>
-        <div><span class='acceptable'></span>Acceptable: less than 35 MPN</div>
-        <div><span class='unacceptable'></span>Unacceptable if levels persist: 35-104 MPN</div>
-        <div><span class='unacceptable2'></span>Unacceptable: more than 104 MPN</div>
+        <div><span class='acceptable'></span>Acceptable: less than 35 colonie</div>
+        <div><span class='unacceptable'></span>Unacceptable if levels persist: 35-104 colonies</div>
+        <div><span class='unacceptable2'></span>Unacceptable: more than 104 colonies</div>
         <p></p>
-        <div><span class='entero'>MPN = most probable number. This is the count of Enterococcus for a 100 milliliter water sample. Enterococcus is a bacteria most commonly found in feces of warm-blooded animals (like humans!). They are tested for to indicate sewage or other fecal pollution that could contain pathogens that could make us sick if we fish, swim or boat in the water.</span></div>
+        <div><span class='entero'>This is the estimated count of Enterococcus colonies for a 100 milliliter water sample. Their presence indicates possible fecal pollution.</span></div>
         </div>
       </div>
     <div class="precipitation"></div>
     <div class="precipitation_subtitle"></div>
       <script id="template" type="x-tmpl-mustache">
-      {{sampler}}'s water sample showed {{enterococcus}} colonies of enterococcus per 100 milliliters of water sampled.
+      {{sampler}}'s water sample showed an estimated count of {{enterococcus}} colonies of Enterococcus per 100 milliliters of water sampled.
         <div class='date'>Site: {{site_name}};  Date: {{date}}</div></p>
       </script>
   </body>

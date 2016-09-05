@@ -12,12 +12,12 @@ html, body {
 
 #title {
   background: #80b7db;
-  height: 300px;
+  height: 450px;
   width: 230px;
   opacity: 0.75;
-  top: 8px;
+  top: 120px;
   left: 8px;
-  padding: 15px;
+  padding: 5px;
   position: absolute;
   font-family: calibri; 
 }
@@ -48,14 +48,14 @@ html, body {
 #legend {
   background: white;
   opacity: 0.7;
-  height: 215px;
-  width: 290px;
+  height: 180px;
+  width: 280px;
   text-align: left;
-  bottom: 100px;
+  bottom: 30px;
   font-family: calibri;
   font-size: 90%;
   position: absolute;
-  left: 5px;
+  right: 5px;
   padding: 5px;
   }
 
