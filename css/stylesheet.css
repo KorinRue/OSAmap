@@ -11,8 +11,8 @@ html, body {
 }
 
 #title {
-  background: #80b7db;
-  height: 450px;
+  background: #99c2dd;
+  height: 510px;
   width: 230px;
   opacity: 0.75;
   top: 120px;
@@ -27,6 +27,10 @@ html, body {
   font-weight: bold;
   font-size: x-large; 
   color: #0D497C;
+}
+
+.credit {
+  font-size: 11px;
 }
 
 #dep {
