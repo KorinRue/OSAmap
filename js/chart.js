@@ -1,171 +1,134 @@
 var Chart = function() {
 	
-	var MILLISECONDS_PER_WEEK = 604800000;
-
-	var margin, 
-		width, height,
+	var width, height,
 		x, y,
-		xAxis, yAxis,
-		startDomain,
-		startDate,
-		startWeek,
+		xAxis, xAxis2, yAxis, yAxis2,
 		brush,
-		svg,
-		focus,
 		context,
-		bar,
-		barWidth,
-		dateRange,
-		precipMap,
-		drawMap;
+		util;
 	
-	var customTimeFormat = function (date) {
-
-		var formatMillisecond = d3.timeFormat(".%L"),
-		formatSecond = d3.timeFormat(":%S"),
-		formatMinute = d3.timeFormat("%I:%M"),
-		formatHour = d3.timeFormat("%I %p"),
-		formatDay = d3.timeFormat("%a %d"),
-		formatWeek = d3.timeFormat("%d"),
-		formatMonth = d3.timeFormat("%b"),
-		formatYear = d3.timeFormat("%Y");
-
-		return (d3.timeSecond(date) < date ? formatMillisecond
-		: d3.timeMinute(date) < date ? formatSecond
-		: d3.timeHour(date) < date ? formatMinute
-		: d3.timeDay(date) < date ? formatHour
-		: d3.timeWeek(date) < date && date.getDate() > 7 ? formatDay
-		: d3.timeMonth(date) < date && date.getDate() > 7 ? formatWeek
-		: d3.timeYear(date) < date ? function(date){return formatMonth(date).charAt(0);}
-		: formatYear)(date);
-
+	// return formatted dates for x axis
+	var dayOfMonth = function (date) {
+		var	formatDayOfMonth = d3.timeFormat("%-d");
+		return formatDayOfMonth(date);
 	}
 	
-	var usingPrecip = function(data) {
-		return data.value;
-	}
-
-	var yBounds = function(data) {
-		return ({ min: d3.min(data, usingPrecip), max: d3.max(data, usingPrecip) });
-	}
-
-	var xBoundsSelected = function() {
-
-		var domain = d3.event.selection.map(x.invert),
-			date1 = domain[0],
-			date2 = domain[1],
-			minDate = date1.getFullYear() + "-" + (date1.getMonth() + 1) + "-" + date1.getDate(),
-			maxDate = date2.getFullYear() + "-" + (date2.getMonth() + 1) + "-" + date2.getDate();
-
-		return({min: minDate, max: maxDate});
-
+	// return formatted months for x axis
+	var month = function (date) {
+		var	formatMonth = d3.timeFormat("%b");
+		return formatMonth(date);
 	}
 	
-	var brushstart = function() {
-
-		startDate = d3.event.selection.map(x.invert);
-		startWeek = [d3.timeWeek.floor(startDate[1]), d3.timeWeek.ceil(startDate[1])];
-		currentWeek = startWeek;
-
+	// display selected week
+	var updateWeekDisplay = function(week) {
+		setSubtitle("Week: " + util.formattedDate(week[0], '/') + " - " + util.formattedDate(week[1], '/'));
 	}
 	
-
+	// handle move of brush (aka "slider"): enforce snapping between weeks and update week display
 	var brushmove = function() {
 
-		var dateFmt, currentDate;
+		var currentDate;
 		
 		if (!d3.event.sourceEvent || d3.event.sourceEvent.type === "brush") {
 			return;
 		}
 
 		currentSelection = d3.event.selection.map(x.invert);
+		currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
 
-
-		if (currentSelection[0] < startWeek[0]) {
+		if (currentSelection[0] < currentWeek[0]) {
 			currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
-		} else if (currentSelection[1] > startWeek[1]) {
+		} else if (currentSelection[1] > currentWeek[1]) {
 			currentWeek = [d3.timeWeek.floor(currentSelection[1]), d3.timeWeek.ceil(currentSelection[1])];
-		} else {
-			currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[1])];
 		}
-
-		if (currentWeek[0] <= x.domain()[0] || currentWeek[1] >= x.domain()[1]) {
-			return;
-		}
-		
-		dateFmt = d3.timeFormat("%Y/%m/%d"),
-		setSubtitle("Week: " + dateFmt(currentWeek[0]) + " - " + dateFmt(currentWeek[1]));
 
 		d3.select(this).call(brush.move, currentWeek.map(x));
 
-
+		updateWeekDisplay(currentWeek);
 
 	}
 
-	var brushend = function() {
+	// handle release of brush (aka "slider"): update the map with the selected dates
+	var brushend = function(renderMap) {
 
-		if (! d3.event.selection) {
-			return;
+		if (typeof currentWeek !== "undefined") {
+			renderMap([currentWeek[0], currentWeek[1]]);
 		}
-
-		drawMap(precipMap, xBoundsSelected());
 
 	}
 	
-	var setSubtitle = function(subTitle) {
-		$('.precipitation_subtitle').html(subTitle);
-	}
-
+	// display title
 	var setTitle = function(title) {
 		$('.precipitation').html(title);
 	}
 
-	var initialize = function(dateRange, map, renderMap) {
-		var weeks, dateFmt;
-		
-		drawMap = renderMap;
-		precipMap = map
+	// display subtitle
+	var setSubtitle = function(subTitle) {
+		$('.precipitation_subtitle').html(subTitle);
+	}
 
+	// move month labels on x axis to center of month ... sort of.  it's a hack.
+	var adjustTextLabels = function(selection) {
+		selection.selectAll('.axis2 text')
+		.attr('transform', 'translate(' + 35 + ',0)');
+		//.attr('transform', 'translate(' + daysToPixels(1) / 2 + ',0)');
+	}
+
+	// does start date fall on a Sunday, and does end date equal start date?
+	var sameDay = function(date) {
+		return date[0].getDay() === 0 && (date[0].toString() == date[1].toString());
+	}
+
+	// given a date range, return number of Sun <-> Sun weeks it contains
+	var nWeeks = function(dateRange) {
+		return d3.timeWeek.count(dateRange[0], dateRange[1])
+	}
+
+	/*
+	function daysToPixels(days, timeScale) {
+	 	var d1 = new Date();
+	 	timeScale || (timeScale = Global.timeScale);
+		return timeScale(d3.timeWeek.offset(d1, days)) - timeScale(d1);
+	}
+	*/
+
+	// initialize chart with axes and ticks but no data
+	var initialize = function(dateRange) {
+
+		var margin, svg;
+
+		util = Util();
+		
         // init margins
-        margin = {top: 430, right: 20, bottom: 0, left: 20};
+        margin = {left: 40, right: 20}
 
         // init width and height
         width = 900 - margin.left - margin.right;
-        height = 500 - margin.top - margin.bottom;
+        height = 50;
 
-        // init x and y
+        // init x and y scales
         x = d3.scaleTime().rangeRound([0, width]);
         y = d3.scaleLinear().range([height, 0]);
 
-
-		// get # weeks in fullDateRange
-		weeks = Math.round((new Date(dateRange.max)-new Date(dateRange.min))/ MILLISECONDS_PER_WEEK);
-
-        // init x axis
+        // init x axes and ticks
 		xAxis = d3.axisBottom(x)
-		.tickFormat(customTimeFormat)
-		.ticks(weeks);
+		.tickFormat(dayOfMonth)
+		.ticks(nWeeks(dateRange));
+		xAxis2 = d3.axisBottom(x)
+		.tickFormat(month);
 
-		// init y axis
+		// init y axes and ticks
 		yAxis = d3.axisLeft(y).ticks(3);
+		yAxis2 = d3.axisRight(y).ticks(3);
 
   		// set title
-		dateFmt = d3.timeFormat("%Y/%m/%d");
-		setTitle("Precipitation: " + dateFmt(new Date(dateRange.min)) + " - " + dateFmt(new Date(dateRange.max)));
-
-	}
-
-	var render = function(data, dates) {
-
-		var bar,
-			dateRange = dates,
-			dateFmt;
+		setTitle("Precipitation: " + util.formattedDate(dateRange[0], '/') + " - " + util.formattedDate(dateRange[1], '/'));
 
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
-		.attr("width", "95%")
-		.attr("height", 100)
-		.attr("viewBox", "0 0 900 100")
+		.attr("width", "800")
+		.attr("height", 90)
+		.attr("viewBox", "0 0 900 90")
 		.attr("preserveAspectRatio", "none");
 
 		// add context (the chart container)
@@ -173,26 +136,46 @@ var Chart = function() {
 		.attr("class", "context")
 		.attr("transform", "translate(" + margin.left + "," + 0 + ")");
 
+	}
+
+	// given preceip data, a callback to render map when dates change, and initial dates, render the chart
+	var render = function(data, renderMap, initialDates) {
+
+		var PADDING = -50,
+			barWidth;
+
 		// set domains: x is min to max date, y is 0 to max precip
 		x.domain(d3.extent(data.map(function(d) { return new Date(d.date); })));
 		y.domain([0, d3.max(data.map(function(d) { return d.value; }))]);
 
-		// render y axis
-		context.append("g")
-		.attr("class", "y axis")
-		.call(yAxis);
-
-		// render x axis
+		// render x axes and month labels
 		context.append("g")
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
 		.call(xAxis);
+		context.append("text")
+		.attr("class", "x title")
+		.attr("text-anchor", "middle")
+		.attr("transform", "translate("+ (PADDING/2) +","+(height/2)+")rotate(-90)")
+		.text("Precip (in.)");
+		context.append("g")
+		.attr("class", "x axis2")
+		.attr("transform", "translate(0," + (height + 12) + ")")
+		.call(xAxis2)
+		.call(adjustTextLabels);
 
-		// get bar width
-		barWidth = width / data.length;
+		// render y axis and labels
+		context.append("g")
+		.attr("class", "y axis")
+		.call(yAxis);
+		context.append("g")
+		.attr("class", "y axis2")
+		.attr("transform", "translate(" + width + ",0)")
+		.call(yAxis2);
 
 		// render bars
-		bar = context.selectAll("rect")
+		barWidth = width / data.length;
+		context.selectAll("rect")
 		.data(data)
 		.enter()
 		.append("rect")
@@ -209,19 +192,23 @@ var Chart = function() {
 		// init brush
 		brush = d3.brushX()
 		.extent([ [0, 0], [width, height] ])
-		.on("start", brushstart)
 		.on("brush", brushmove)
-		.on("end", brushend);
-		
-		// init brush group
-		var brushG = context.append("g")
+		.on("end", function() { 
+			brushend(renderMap);
+		});
+
+		// if the default selected date falls at the beginning of the week,
+		// then d3 will set start and end dates to that date;
+		// so push the end date out 1 week to avoid that edge case.
+		if (sameDay(initialDates)) {
+			initialDates[1] = d3.timeWeek.offset(initialDates[1], 1);
+		}
+
+		// init brush group and set initial brush 
+		context.append("g")
 		.attr("class", "brush")
 		.call(brush)
-		.call(brush.move, function() {
-			dateFmt = d3.timeFormat("%Y/%m/%d");
-			setSubtitle("Week: " + dateFmt(new Date(dates.min)) + " - " + dateFmt(new Date(dates.max)));
-			return [new Date(dates.min),new Date(dates.max)].map(x);
-		});
+		.call(brush.move, initialDates.map(x));
 
 		// remove handles to lock the brush at a week
 		d3.selectAll("g.brush rect.handle").remove();
@@ -230,6 +217,7 @@ var Chart = function() {
 
 	return {
 		initialize: initialize,
+		updateWeekDisplay: updateWeekDisplay,
 		render: render
 	}
 

@@ -1,31 +1,31 @@
-var NOAA = (function() {
+var NOAA = function() {
 
-    var NOAA_URL = "http://www.ncdc.noaa.gov/cdo-web/api/v2/data",
-        NOAA_TOKEN = "zuaINMzpFJTIwKVgRhCBNSUQggvWkpUX",
-        noaa_playload = {
-            datasetid: "GHCND",
-            // jfk
-            stationid: "GHCND:USW00094789",
-            // central park
-            //stationid: "GHCND:USW00094728",
-            startdate: "2015-01-01",
-            enddate: "2015-12-31",
-            datatypeid: "PRCP",
-            limit: "1000",
-            includemetadata: "false",
-            units: "standard",
-        }
+    var NOAA = {
+        URL: "http://www.ncdc.noaa.gov/cdo-web/api/v2/data",
+        TOKEN: "zuaINMzpFJTIwKVgRhCBNSUQggvWkpUX"
+    }
 
-    var getPrecipData = function(dateRange) {
-        noaa_playload.startdate = dateRange.min;
-        noaa_playload.enddate = dateRange.max;
+    var  getPrecipData = function(dateRange) { 
+        var util = Util(),
+            noaa_payload = {
+                datasetid: "GHCND",
+                stationid: "GHCND:USW00094789",
+                startdate: util.formattedDate(dateRange[0], '-'),
+                enddate: util.formattedDate(dateRange[1], '-'),
+                datatypeid: "PRCP",
+                limit: "1000",
+                includemetadata: "false",
+                units: "standard"
+            };
         return new Promise( function(resolve, reject) {
-            console.log(noaa_playload);
             $.ajax({
-                url: NOAA_URL,
+                url: NOAA["URL"],
                 type: "GET",
-                data: noaa_playload,
-                headers: {"token": NOAA_TOKEN,},
+                data: noaa_payload,
+                headers: {"token": NOAA["TOKEN"],},
+                beforeSend: function( xhr ) {
+                    $("#chart").html("<i id='spinner' class='fa fa-refresh fa-spin fa-3x fa-fw'></i><span class='sr-only'>Loading...</span>");
+                }
             })
             .done(function(data, textStatus, jqXHR) {
                 resolve(data.results);
@@ -34,13 +34,13 @@ var NOAA = (function() {
                 reject("errors:" + errorThrown)
             })
             .always(function() {
-                /* ... */
+                $("#chart").html("");
             });
         });
     }
 
     return {
-        precipData: getPrecipData
+        getPrecipData: getPrecipData
     }
 
-});
+};

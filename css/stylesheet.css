@@ -7,17 +7,17 @@ html, body {
 
 #map {
   width: 100%;
-  height: 90%; 
+  height: 100%; 
 }
 
 #title {
-  background: #80b7db;
-  height: 300px;
+  background: #99c2dd;
+  height: 510px;
   width: 230px;
   opacity: 0.75;
-  top: 8px;
+  top: 120px;
   left: 8px;
-  padding: 15px;
+  padding: 5px;
   position: absolute;
   font-family: calibri; 
 }
@@ -27,6 +27,10 @@ html, body {
   font-weight: bold;
   font-size: x-large; 
   color: #0D497C;
+}
+
+.credit {
+  font-size: 11px;
 }
 
 #dep {
@@ -48,14 +52,14 @@ html, body {
 #legend {
   background: white;
   opacity: 0.7;
-  height: 215px;
-  width: 290px;
+  height: 180px;
+  width: 280px;
   text-align: left;
-  bottom: 100px;
+  bottom: 30px;
   font-family: calibri;
   font-size: 90%;
   position: absolute;
-  left: 5px;
+  right: 5px;
   padding: 5px;
   }
 
@@ -105,28 +109,89 @@ html, body {
   font-weight: normal;
 }
 
+#control-panel {
+  position: absolute;
+  width: 90%;
+  background:rgba(0,0,0,0.7);
+  z-index: 2;
+  opacity: 1;
+  border-radius: 10px;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+
+#control-panel > .row {
+  white-space: nowrap;
+  height: 90px;
+}
+
+#spinner {
+  margin-left: 450px;
+  margin-top: 10px;
+  color: #888;
+}
+
+#dropdown-container {
+  display: table-cell;
+  height: 90px;
+  padding-top: 30px;
+  text-align: center;
+  white-space: normal;
+}
+
 #chart {
-  width: 100%;
-  height: 100px;
-  margin-bottom: 20px;
+  display: table-cell;
+  white-space: normal;
+}
+
+select.years {
+  min-width: 80px;
 }
 
 svg {
   display: block;
-  margin: auto;
+  margin-left: auto;
+  margin-right: 3%;
   font: 10px sans-serif;
+  padding-top: 10px;
 }
 
 .axis path,
 .axis line {
   fill: none;
-  stroke: #BBB;
+  stroke: #777;
+}
+
+.x.axis2 line,
+.x.axis2 path {
+  visibility: hidden;
+  fill: none;
+  stroke: #000;
+  font: 20px sans-serif;
+}
+
+.y.axis2 line,
+.y.axis2 path {
+  fill: none;
+  stroke: #777;
+}
+
+.axis text {
+  fill: #AAA;
+}
+
+.axis2 text {
+  fill: #AAA;
+}
+
+.x.title {
+  fill: #AAA;
 }
 
 .bar {
 	fill: #81B7DB;
 	stroke: #81B7DB;
-  	shape-rendering: crispEdges;
+  shape-rendering: crispEdges;
 }
 
 .brush .extent {
@@ -141,6 +206,7 @@ svg {
   color: #0D497C;
   margin-top: 20px;
   margin-left: 20px;
+  display:none;
 }
 
 .precipitation_subtitle {
@@ -150,4 +216,13 @@ svg {
   font-size: medium; 
   color: #0D497C;
   margin-left: 20px;
+  display:none;
 }
+
+.brush .selection {
+  fill: #CCC;
+  fill-opacity: 0.3;
+  stroke: #BBB;
+  stroke-opacity: 0.3;
+}
+
