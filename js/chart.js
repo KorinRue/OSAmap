@@ -1,6 +1,8 @@
 var Chart = function() {
 	
-	var width, height,
+	var svg,
+		tip,
+		width, height,
 		x, y,
 		xAxis, xAxis2, yAxis, yAxis2,
 		brush,
@@ -28,7 +30,7 @@ var Chart = function() {
 	var brushmove = function() {
 
 		var currentDate;
-		
+
 		if (!d3.event.sourceEvent || d3.event.sourceEvent.type === "brush") {
 			return;
 		}
@@ -42,7 +44,14 @@ var Chart = function() {
 			currentWeek = [d3.timeWeek.floor(currentSelection[1]), d3.timeWeek.ceil(currentSelection[1])];
 		}
 
-		d3.select(this).call(brush.move, currentWeek.map(x));
+		d3.select(this)
+		.data([currentWeek.map( function(d) {
+			return util.formattedDate2(d, " ");
+		}).join("-")])
+		.call(tip2)
+		.call(brush.move, currentWeek.map(x))
+		.on('mouseover', tip2.show)
+  		.on('mouseout', tip2.hide);
 
 		updateWeekDisplay(currentWeek);
 
@@ -84,6 +93,27 @@ var Chart = function() {
 		return d3.timeWeek.count(dateRange[0], dateRange[1])
 	}
 
+	var quickDelegate = function(event, target) {
+	    var eventCopy = document.createEvent("MouseEvents");
+	    eventCopy.initMouseEvent(event.type, event.bubbles, event.cancelable, event.view, event.detail,
+	        event.pageX || event.layerX, event.pageY || event.layerY, event.clientX, event.clientY, event.ctrlKey, event.altKey,
+	        event.shiftKey, event.metaKey, event.button, event.relatedTarget);
+	    target.dispatchEvent(eventCopy);
+	    // ... and in webkit I could just dispatch the same event without copying it. eh.
+	};
+
+	var tipText = function(d) {
+		return "<div><div>" + 
+				util.formattedDate2(new Date(d.date), " ") + 
+				"</div><div><strong>" + 
+				d.value + " in" +
+				"</strong></div></div>"; 
+	}
+
+	var tipText2 = function(d) {
+		return "<div><div><strong>" + d + "</strong></div></div>"; 
+	}
+
 	/*
 	function daysToPixels(days, timeScale) {
 	 	var d1 = new Date();
@@ -95,7 +125,7 @@ var Chart = function() {
 	// initialize chart with axes and ticks but no data
 	var initialize = function(dateRange) {
 
-		var margin, svg;
+		var margin;
 
 		util = Util();
 		
@@ -124,12 +154,21 @@ var Chart = function() {
   		// set title
 		setTitle("Precipitation: " + util.formattedDate(dateRange[0], '/') + " - " + util.formattedDate(dateRange[1], '/'));
 
+		tip = d3.tip()
+		.attr('class', 'd3-tip')
+		.html(tipText);
+
+		tip2 = d3.tip()
+		.attr('class', 'd3-tip')
+		.html(tipText2);
+
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
 		.attr("width", "800")
 		.attr("height", 90)
 		.attr("viewBox", "0 0 900 90")
-		.attr("preserveAspectRatio", "none");
+		.attr("preserveAspectRatio", "none")
+		.call(tip);
 
 		// add context (the chart container)
 		context = svg.append("g")
@@ -157,7 +196,7 @@ var Chart = function() {
 		.attr("class", "x title")
 		.attr("text-anchor", "middle")
 		.attr("transform", "translate("+ (PADDING/2) +","+(height/2)+")rotate(-90)")
-		.text("Precip (in.)");
+		.text("JFK Precip");
 		context.append("g")
 		.attr("class", "x axis2")
 		.attr("transform", "translate(0," + (height + 12) + ")")
@@ -175,6 +214,7 @@ var Chart = function() {
 
 		// render bars
 		barWidth = width / data.length;
+
 		context.selectAll("rect")
 		.data(data)
 		.enter()
@@ -187,7 +227,9 @@ var Chart = function() {
 		.attr("height", function(d) { 
 			return height - y(d.value); 
 		})
-		.attr("width", barWidth - 1);
+		.attr("width", barWidth - 1)
+		.on('mouseover', tip.show)
+  		.on('mouseout', tip.hide);
 
 		// init brush
 		brush = d3.brushX()
@@ -197,22 +239,28 @@ var Chart = function() {
 			brushend(renderMap);
 		});
 
-		// if the default selected date falls at the beginning of the week,
-		// then d3 will set start and end dates to that date;
-		// so push the end date out 1 week to avoid that edge case.
+ 		// append brush 
+		// avoiding edge case when start date falls on Sunday
 		if (sameDay(initialDates)) {
 			initialDates[1] = d3.timeWeek.offset(initialDates[1], 1);
 		}
-
-		// init brush group and set initial brush 
 		context.append("g")
 		.attr("class", "brush")
 		.call(brush)
 		.call(brush.move, initialDates.map(x));
 
-		// remove handles to lock the brush at a week
+		/*
+		d3.select(".brush .selection")
+		.data([initialDates.map( function(d) {
+			return util.formattedDate2(d, " ");
+		}).join("-")])
+		.call(tip2)
+		.on('mouseover', tip2.show)
+  		.on('mouseout', tip2.hide);
+  		*/
+
+		// locking the brush at a week
 		d3.selectAll("g.brush rect.handle").remove();
-		
 	}
 
 	return {
