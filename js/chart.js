@@ -1,6 +1,8 @@
 var Chart = function() {
 	
-	var width, height,
+	var svg,
+		tip, tip2,
+		width, height,
 		x, y,
 		xAxis, xAxis2, yAxis, yAxis2,
 		brush,
@@ -24,27 +26,48 @@ var Chart = function() {
 		setSubtitle("Week: " + util.formattedDate(week[0], '/') + " - " + util.formattedDate(week[1], '/'));
 	}
 	
+	var brushstart = function() {
+		if (!d3.event.sourceEvent) {
+			return;
+		}
+		//console.log(x.invert(d3.event.sourceEvent.offsetX));
+		currentSelection = d3.event.selection.map(x.invert);
+		currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
+
+	}
+
 	// handle move of brush (aka "slider"): enforce snapping between weeks and update week display
 	var brushmove = function() {
 
-		var currentDate;
-		
+		var currSel, currWk;
+
 		if (!d3.event.sourceEvent || d3.event.sourceEvent.type === "brush") {
 			return;
 		}
 
-		currentSelection = d3.event.selection.map(x.invert);
-		currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
+		// expand selection to week
+		currSel = d3.event.selection.map(x.invert),
+		currWk = currSel.map(d3.timeWeek.round);
 
-		if (currentSelection[0] < currentWeek[0]) {
-			currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
-		} else if (currentSelection[1] > currentWeek[1]) {
-			currentWeek = [d3.timeWeek.floor(currentSelection[1]), d3.timeWeek.ceil(currentSelection[1])];
+		// if week is still empty, expand by setting floor/ceil
+		if (currWk[0] >= currWk[1]) {
+			currWk[0] = d3.timeWeek.floor(currSel[0]);
+			currWk[1] = d3.timeWeek.ceil(currSel[1]);
 		}
 
-		d3.select(this).call(brush.move, currentWeek.map(x));
+		// fix weird edge case when expansion is > 1 week
+		if (d3.timeWeek.offset(currWk[0], 1) < currWk[1]) {
+			currWk[1] = d3.timeWeek.offset(currWk[0], 1);
+		}
 
-		updateWeekDisplay(currentWeek);
+		d3.select(this)
+		.data([currWk.map( function(d) {
+			return util.formattedDate2(d, " ");
+		}).join("-")])
+		.call(tip2)
+		.call(brush.move, currWk.map(x));
+
+		updateWeekDisplay(currWk);
 
 	}
 
@@ -84,18 +107,22 @@ var Chart = function() {
 		return d3.timeWeek.count(dateRange[0], dateRange[1])
 	}
 
-	/*
-	function daysToPixels(days, timeScale) {
-	 	var d1 = new Date();
-	 	timeScale || (timeScale = Global.timeScale);
-		return timeScale(d3.timeWeek.offset(d1, days)) - timeScale(d1);
+	var tipText = function(d) {
+		return "<div><div>" + 
+				util.formattedDate2(new Date(d.date), " ") + 
+				"</div><div><strong>" + 
+				d.value + " in" +
+				"</strong></div></div>"; 
 	}
-	*/
+
+	var tipText2 = function(d) {
+		return "<div><div><strong>" + d + "</strong></div></div>"; 
+	}
 
 	// initialize chart with axes and ticks but no data
 	var initialize = function(dateRange) {
 
-		var margin, svg;
+		var margin;
 
 		util = Util();
 		
@@ -124,12 +151,23 @@ var Chart = function() {
   		// set title
 		setTitle("Precipitation: " + util.formattedDate(dateRange[0], '/') + " - " + util.formattedDate(dateRange[1], '/'));
 
+		tip = d3.tip()
+		.attr('id', 'barTip')
+		.attr('class', 'd3-tip')
+		.html(tipText);
+
+		tip2 = d3.tip()
+		.attr('id', 'brushTip')
+		.attr('class', 'd3-tip')
+		.html(tipText2);
+
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
 		.attr("width", "800")
 		.attr("height", 90)
 		.attr("viewBox", "0 0 900 90")
-		.attr("preserveAspectRatio", "none");
+		.attr("preserveAspectRatio", "none")
+		.call(tip);
 
 		// add context (the chart container)
 		context = svg.append("g")
@@ -157,7 +195,7 @@ var Chart = function() {
 		.attr("class", "x title")
 		.attr("text-anchor", "middle")
 		.attr("transform", "translate("+ (PADDING/2) +","+(height/2)+")rotate(-90)")
-		.text("Precip (in.)");
+		.text("JFK Precip");
 		context.append("g")
 		.attr("class", "x axis2")
 		.attr("transform", "translate(0," + (height + 12) + ")")
@@ -175,6 +213,7 @@ var Chart = function() {
 
 		// render bars
 		barWidth = width / data.length;
+
 		context.selectAll("rect")
 		.data(data)
 		.enter()
@@ -187,32 +226,40 @@ var Chart = function() {
 		.attr("height", function(d) { 
 			return height - y(d.value); 
 		})
-		.attr("width", barWidth - 1);
+		.attr("width", barWidth - 1)
+		.on('mouseover', tip.show)
+  		.on('mouseout', tip.hide);
 
 		// init brush
 		brush = d3.brushX()
 		.extent([ [0, 0], [width, height] ])
+		.on("start", brushstart)
 		.on("brush", brushmove)
 		.on("end", function() { 
 			brushend(renderMap);
 		});
 
-		// if the default selected date falls at the beginning of the week,
-		// then d3 will set start and end dates to that date;
-		// so push the end date out 1 week to avoid that edge case.
+ 		// append brush 
+		// avoiding edge case when start date falls on Sunday
 		if (sameDay(initialDates)) {
 			initialDates[1] = d3.timeWeek.offset(initialDates[1], 1);
 		}
-
-		// init brush group and set initial brush 
 		context.append("g")
 		.attr("class", "brush")
 		.call(brush)
 		.call(brush.move, initialDates.map(x));
 
-		// remove handles to lock the brush at a week
-		d3.selectAll("g.brush rect.handle").remove();
-		
+		// locking the brush at a week
+		d3.selectAll(".brush .handle").remove();
+
+		d3.select(".brush")
+		.data([initialDates.map( function(d) {
+			return util.formattedDate2(d, " ");
+		}).join("-")])
+		.call(tip2)
+		.call(brush.move, initialDates.map(x))
+		.on('mouseover', tip2.show)
+  		.on('mouseout', tip2.hide);
 	}
 
 	return {

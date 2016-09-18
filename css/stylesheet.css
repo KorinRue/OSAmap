@@ -220,9 +220,12 @@ svg {
 }
 
 .brush .selection {
-  fill: #CCC;
-  fill-opacity: 0.3;
-  stroke: #BBB;
-  stroke-opacity: 0.3;
+  stroke: #CCC;
+  stroke-width: 2px;
 }
+
+.brush .overlay {
+  pointer-events: none;
+}
+
 
