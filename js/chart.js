@@ -26,16 +26,6 @@ var Chart = function() {
 		setSubtitle("Week: " + util.formattedDate(week[0], '/') + " - " + util.formattedDate(week[1], '/'));
 	}
 	
-	var brushstart = function() {
-		if (!d3.event.sourceEvent) {
-			return;
-		}
-		//console.log(x.invert(d3.event.sourceEvent.offsetX));
-		currentSelection = d3.event.selection.map(x.invert);
-		currentWeek = [d3.timeWeek.floor(currentSelection[0]), d3.timeWeek.ceil(currentSelection[0])];
-
-	}
-
 	// handle move of brush (aka "slider"): enforce snapping between weeks and update week display
 	var brushmove = function() {
 
@@ -74,9 +64,9 @@ var Chart = function() {
 	// handle release of brush (aka "slider"): update the map with the selected dates
 	var brushend = function(renderMap) {
 
-		if (typeof currentWeek !== "undefined") {
-			renderMap([currentWeek[0], currentWeek[1]]);
-		}
+		currentSelection = d3.event.selection.map(x.invert);
+		currentWeek = currentSelection.map(d3.timeWeek.round);
+		renderMap([currentWeek[0], currentWeek[1]]);
 
 	}
 	
@@ -233,7 +223,6 @@ var Chart = function() {
 		// init brush
 		brush = d3.brushX()
 		.extent([ [0, 0], [width, height] ])
-		.on("start", brushstart)
 		.on("brush", brushmove)
 		.on("end", function() { 
 			brushend(renderMap);
