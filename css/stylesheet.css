@@ -149,6 +149,7 @@ select.years {
 }
 
 svg {
+  float: left;
   display: block;
   margin-left: auto;
   margin-right: 3%;
