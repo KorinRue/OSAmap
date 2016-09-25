@@ -109,6 +109,10 @@ var Chart = function() {
 		return "<div><div><strong>" + d + "</strong></div></div>"; 
 	}
 
+	var maxY = function() {
+		return localStorage.getItem("max_noaa_precip");
+	}
+
 	// initialize chart with axes and ticks but no data
 	var initialize = function(dateRange) {
 
@@ -174,7 +178,7 @@ var Chart = function() {
 
 		// set domains: x is min to max date, y is 0 to max precip
 		x.domain(d3.extent(data.map(function(d) { return new Date(d.date); })));
-		y.domain([0, d3.max(data.map(function(d) { return d.value; }))]);
+		y.domain([0, maxY()]);
 
 		// render x axes and month labels
 		context.append("g")
