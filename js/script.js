@@ -37,6 +37,17 @@ $(document).ready(function() {
 		return years;
 	}
 
+	var getDayRangesFromYears = function(years) {
+		var dayRanges = [];
+
+		for (i = 0; i < years.length; i++) {
+			var dummyDate = new Date(years[i], 1, 2);
+			dayRanges.push([d3.timeYear.floor(dummyDate), d3.timeDay.offset(d3.timeYear.ceil(dummyDate), -1)]);
+		}
+
+		return dayRanges;
+	}
+
 	// insert years into dropdown
 	var insertYears = function(years) {
 		$('.years').html("");
@@ -63,32 +74,33 @@ $(document).ready(function() {
 	map = Map();
 	map.initialize();
 
-	/* For future use
-	map.getEnteroRange()
-	.then(function(enteroRange) {
-		console.log(enteroRange);
-	});
-	*/
-
 	// get date range from carto
 	map.getDateRange()
 	.then(function(dateRange) {
+		var years, ranges, promises = [];
+
+		years = getYearRange(dateRange);
 
 		// insert date range years into dropdown
-		insertYears(getYearRange(dateRange));
+		insertYears(years);
 
-		// render chart and map
-		render();
-
-		// re-render chart and map whenever selected year changes
-		$('.years').select2({ minimumResultsForSearch: -1})
-		.on('change', function (evt) {
-			$('#chart').html("");
-			render();
+		// request all precip data, and compile promises to fulfill
+		ranges = getDayRangesFromYears(years);
+		noaa = NOAA();
+		promises = [];
+		ranges.forEach(function(r) {
+			promises.push(noaa.getPrecipData(r));
 		});
 
+		// fulfill promises, cache precip data, then render chart and map
+		Promise.all(promises).then(function(precipData){
+			render();
+			$('.years').select2({ minimumResultsForSearch: -1})
+			.on('change', function (evt) {
+				$('#chart').html("");
+				render();
+			});
+		});
 	});
-
-
 });
 

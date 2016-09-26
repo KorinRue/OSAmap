@@ -81,6 +81,7 @@ var NOAA = function() {
                 isExpired = d3.timeDay.offset(precipData.lastUpdate, 1) < now();
                 if (isExpired) throw now() + ": " + year + " data is expired.  Re-fetching from NOAA";
 
+                cache.setItem(keyMax, getMaxPrecip(cache, "noaa_precip_"));
                 resolve(precipData.data);
 
             } catch (e) {
@@ -103,13 +104,13 @@ var NOAA = function() {
                     }
                     delete precipData.results;
                     cache.setItem(key, JSON.stringify(precipData));
-                    cache.setItem(keyMax, getMaxPrecip(cache, "noaa_precip_"));
                     resolve(precipData.data);
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     reject("errors:" + errorThrown);
                 })
                 .always(function() {
+                    cache.setItem(keyMax, getMaxPrecip(cache, "noaa_precip_"));
                     $("#chart").html("");
                 });
             }
