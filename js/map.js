@@ -136,6 +136,7 @@ var Map = function() {
 					var style = {
 						fillColor: '#1a9641',
 						fillOpacity: 1,
+						opacity: 1,
 						radius: 5,
 						stroke: true,
 						color: 'black',
