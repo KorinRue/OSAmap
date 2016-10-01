@@ -134,9 +134,15 @@ html, body {
 #dropdown-container {
   display: table-cell;
   height: 90px;
-  padding-top: 30px;
+  padding-top: 10px;
   text-align: center;
   white-space: normal;
+}
+
+#dropdown-container .title {
+  color: #BBB;
+  font-size: 12px;
+  margin-bottom: 10px;
 }
 
 #chart {
@@ -153,14 +159,13 @@ svg {
   display: block;
   margin-left: auto;
   margin-right: 3%;
-  font: 10px sans-serif;
   padding-top: 10px;
 }
 
 .axis path,
 .axis line {
   fill: none;
-  stroke: #777;
+  stroke: #888;
 }
 
 .x.axis2 line,
@@ -168,17 +173,18 @@ svg {
   visibility: hidden;
   fill: none;
   stroke: #000;
-  font: 20px sans-serif;
 }
 
 .y.axis2 line,
 .y.axis2 path {
   fill: none;
-  stroke: #777;
+  stroke: #888;
 }
 
 .axis text {
   fill: #AAA;
+  letter-spacing: 1px;
+  font: 11px sans-serif;
 }
 
 .axis2 text {

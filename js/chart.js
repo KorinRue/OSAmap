@@ -4,7 +4,7 @@ var Chart = function() {
 		tip, tip2,
 		width, height,
 		x, y,
-		xAxis, xAxis2, yAxis, yAxis2,
+		xAxis, yAxis, yAxis2,
 		brush,
 		context,
 		util;
@@ -97,6 +97,11 @@ var Chart = function() {
 		return d3.timeWeek.count(dateRange[0], dateRange[1])
 	}
 
+	// given a date range, return days
+	var nDays = function(dateRange) {
+		return d3.timeDay.count(dateRange[0], dateRange[1])
+	}
+
 	var tipText = function(d) {
 		return "<div><div>" + 
 				util.formattedDate2(new Date(d.date), " ") + 
@@ -124,19 +129,18 @@ var Chart = function() {
         margin = {left: 40, right: 20}
 
         // init width and height
-        width = 900 - margin.left - margin.right;
-        height = 50;
+        width = 800 - margin.left - margin.right;
+        height = 65;
 
         // init x and y scales
         x = d3.scaleTime().rangeRound([0, width]);
         y = d3.scaleLinear().range([height, 0]);
 
-        // init x axes and ticks
+        // init x axes and tick placeholders
 		xAxis = d3.axisBottom(x)
-		.tickFormat(dayOfMonth)
-		.ticks(nWeeks(dateRange));
-		xAxis2 = d3.axisBottom(x)
-		.tickFormat(month);
+		.tickFormat("")
+		.tickSize(0)
+		.ticks(nDays(dateRange));
 
 		// init y axes and ticks
 		yAxis = d3.axisLeft(y).ticks(3);
@@ -185,16 +189,36 @@ var Chart = function() {
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
 		.call(xAxis);
+
+		// 1st day of each month gets a long tick
+		// sundays get short ticks
+		d3.selectAll(".x.axis .tick line")
+		.attr("y2", function(d) {
+			if (d.getDate() === 1) {
+				return 15;
+			} else if (d.getDay() === 0) {
+				return 5;
+			}
+		});
+
+		// 15th day of each month gets a month label
+		d3.selectAll(".x.axis .tick text")
+		.attr("dy", "1.25em")
+		.html(function(d) {
+			if (d.getDate() === 15) {
+				var monthAbbrev = d3.timeFormat("%b")
+				return monthAbbrev(d).charAt(0);
+			}
+		});
+
+		// render vertical axis title
+		/*
 		context.append("text")
 		.attr("class", "x title")
 		.attr("text-anchor", "middle")
 		.attr("transform", "translate("+ (PADDING/2) +","+(height/2)+")rotate(-90)")
-		.text("JFK Precip");
-		context.append("g")
-		.attr("class", "x axis2")
-		.attr("transform", "translate(0," + (height + 12) + ")")
-		.call(xAxis2)
-		.call(adjustTextLabels);
+		.text("i n c h e s");
+		*/
 
 		// render y axis and labels
 		context.append("g")
@@ -207,7 +231,6 @@ var Chart = function() {
 
 		// render bars
 		barWidth = width / data.length;
-
 		context.selectAll("rect")
 		.data(data)
 		.enter()
@@ -252,7 +275,8 @@ var Chart = function() {
 		.call(tip2)
 		.call(brush.move, initialDates.map(x))
 		.on('mouseover', tip2.show)
-  		.on('mouseout', tip2.hide);
+ 		.on('mouseout', tip2.hide);
+
 	}
 
 	return {
