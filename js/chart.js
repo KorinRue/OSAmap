@@ -207,7 +207,7 @@ var Chart = function() {
 		.html(function(d) {
 			if (d.getDate() === 15) {
 				var monthAbbrev = d3.timeFormat("%b")
-				return monthAbbrev(d).charAt(0);
+				return monthAbbrev(d);
 			}
 		});
 
