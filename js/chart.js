@@ -51,9 +51,7 @@ var Chart = function() {
 		}
 
 		d3.select(this)
-		.data([currWk.map( function(d) {
-			return util.formattedDate2(d, " ");
-		}).join("-")])
+		.data([currWk])
 		.call(tip2)
 		.call(brush.move, currWk.map(x));
 
@@ -102,20 +100,59 @@ var Chart = function() {
 		return d3.timeDay.count(dateRange[0], dateRange[1])
 	}
 
-	var tipText = function(d) {
-		return "<div><div>" + 
-				util.formattedDate2(new Date(d.date), " ") + 
-				"</div><div><strong>" + 
-				d.value + " in" +
-				"</strong></div></div>"; 
-	}
+	var tipText = function(data) {
 
-	var tipText2 = function(d) {
-		return "<div><div><strong>" + d + "</strong></div></div>"; 
+		var dateStr, precip, result;
+
+		if (Array.isArray(data)) {
+			dateStr = data.map( function(d) {return util.formattedDate2(d, " ")}).join("-");
+			precip = getPrecipStats(data);
+		} else {
+			dateStr = util.formattedDate2(new Date(data.date), " ");
+			precip = {total: data.value, nDays: 1}
+		}
+
+		if (precip.total == 0.0) {
+			result = "<div><div><strong>" + 
+					 dateStr + 
+					 "</strong>" + 
+					 " " + 
+					 "<i class='wi wi-cloudy' style='color:#388EC7;font-size:14px;margin-right:3px'></i>" + 
+					 "</div></div>"; 
+		} else {
+			result = "<div><div><strong>" + 
+					 dateStr + 
+					 "</strong>" + 
+					 " " + 
+					 "<i class='wi wi-rain' style='color:#388EC7;font-size:14px;margin-right:3px'></i><strong>" + 
+					 precip.total + 
+					 "\"</strong></div></div>"; 
+		}
+
+		return result;
 	}
 
 	var maxY = function() {
 		return localStorage.getItem("max_noaa_precip");
+	}
+
+	var getPrecipStats = function(dates) {
+
+		var year, cacheName, precipData, total = 0, count = 0;
+
+		year = dates[0].getFullYear();
+		cacheName = "noaa_precip_" + year;
+		precipData = JSON.parse(localStorage.getItem(cacheName)).data;
+
+		for (i = 0; i < precipData.length; i++) {
+			if (new Date(precipData[i].date) >= dates[0] && new Date(precipData[i].date) <= dates[1]) {
+				if (precipData[i].value > 0) {
+					total += precipData[i].value;
+					count += 1;
+				}
+			}
+		}
+		return {nDays: count, total: d3.format(".2f")(total)};
 	}
 
 	// initialize chart with axes and ticks but no data
@@ -152,12 +189,16 @@ var Chart = function() {
 		tip = d3.tip()
 		.attr('id', 'barTip')
 		.attr('class', 'd3-tip')
+		.direction('n')
+		.offset([-10,0])
 		.html(tipText);
 
 		tip2 = d3.tip()
 		.attr('id', 'brushTip')
 		.attr('class', 'd3-tip')
-		.html(tipText2);
+		.direction('e')
+		.offset([-20,10])
+		.html(tipText);
 
 		// add svg viewport
 		svg = d3.select("#chart").append("svg")
@@ -211,15 +252,6 @@ var Chart = function() {
 			}
 		});
 
-		// render vertical axis title
-		/*
-		context.append("text")
-		.attr("class", "x title")
-		.attr("text-anchor", "middle")
-		.attr("transform", "translate("+ (PADDING/2) +","+(height/2)+")rotate(-90)")
-		.text("i n c h e s");
-		*/
-
 		// render y axis and labels
 		context.append("g")
 		.attr("class", "y axis")
@@ -269,9 +301,7 @@ var Chart = function() {
 		d3.selectAll(".brush .handle").remove();
 
 		d3.select(".brush")
-		.data([initialDates.map( function(d) {
-			return util.formattedDate2(d, " ");
-		}).join("-")])
+		.data([initialDates])
 		.call(tip2)
 		.call(brush.move, initialDates.map(x))
 		.on('mouseover', tip2.show)
