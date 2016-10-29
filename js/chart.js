@@ -112,21 +112,11 @@ var Chart = function() {
 			precip = {total: data.value, nDays: 1}
 		}
 
+		result = "<div><div><strong>" + dateStr + "</strong>" + " ";
 		if (precip.total == 0.0) {
-			result = "<div><div><strong>" + 
-					 dateStr + 
-					 "</strong>" + 
-					 " " + 
-					 "<i class='wi wi-cloudy' style='color:#388EC7;font-size:14px;margin-right:3px'></i>" + 
-					 "</div></div>"; 
+			result = result + "<i class='wi wi-cloudy' style='color:#388EC7;font-size:14px;margin-right:3px'></i>" + "</div></div>"; 
 		} else {
-			result = "<div><div><strong>" + 
-					 dateStr + 
-					 "</strong>" + 
-					 " " + 
-					 "<i class='wi wi-rain' style='color:#388EC7;font-size:14px;margin-right:3px'></i><strong>" + 
-					 precip.total + 
-					 "\"</strong></div></div>"; 
+			result = result + "<i class='wi wi-rain' style='color:#388EC7;font-size:14px;margin-right:3px'></i><strong>" + precip.total + "\"</strong></div></div>"; 
 		}
 
 		return result;

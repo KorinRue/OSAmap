@@ -54,7 +54,7 @@ $(document).ready(function() {
 		for (var i = 0; i < years.length; i++) {
 			$('.years').append("<option value=" + years[i] + ">" + years[i] + "</option>");
 		}
-		$('.years').val("2015");
+		$('.years').val("2016");
 	}
 
 	// get noaa data for selected year, render chart and map
@@ -93,7 +93,7 @@ $(document).ready(function() {
 		});
 
 		// fulfill promises, cache precip data, then render chart and map
-		Promise.all(promises).then(function(precipData){
+		Promise.all(promises).then(function(){
 			render();
 			$('.years').select2({ minimumResultsForSearch: -1})
 			.on('change', function (evt) {
