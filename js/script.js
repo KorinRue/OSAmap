@@ -43,7 +43,7 @@ $(document).ready(function() {
 		for (var i = 0; i < years.length; i++) {
 			$('.years').append("<option value=" + years[i] + ">" + years[i] + "</option>");
 		}
-		$('.years').val("2016");
+		$('.years').val(years[years.length-1]);
 	}
 
 	// get noaa data for selected year, render chart and map
