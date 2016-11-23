@@ -7,6 +7,7 @@ var NOAA = function() {
 
     var  getPrecipData = function(dateRange) { 
         var util = Util(),
+            year = dateRange[0].getFullYear(),
             noaa_payload = {
                 datasetid: "GHCND",
                 stationid: "GHCND:USW00094789",
@@ -18,6 +19,18 @@ var NOAA = function() {
                 units: "standard"
             };
         return new Promise( function(resolve, reject) {
+
+            var precipData = getNOAAData(year);
+            precipData = {
+                lastUpdate: Date.now(), 
+                data: precipData.results
+            }
+
+            delete precipData.results;
+            $("#chart").html("");
+            resolve(precipData.data);
+
+            /*
             $.ajax({
                 url: NOAA["URL"],
                 type: "GET",
@@ -36,6 +49,7 @@ var NOAA = function() {
             .always(function() {
                 $("#chart").html("");
             });
+            */
         });
     }
 
