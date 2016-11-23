@@ -3,6 +3,7 @@ var NOAA = function() {
     var NOAA = {
         URL: "http://www.ncdc.noaa.gov/cdo-web/api/v2/data",
         TOKEN: "zuaINMzpFJTIwKVgRhCBNSUQggvWkpUX"
+        // TOKEN: "DKkaIwRgdAtlwYgARVlziBXyuPfhITqD"  // korin's token
     }
 
     var noaaPayload = function(dateRange) {
@@ -86,8 +87,19 @@ var NOAA = function() {
 
             } catch (e) {
 
-                console.log(e);
+                var precipData = getNOAAData(year);
+                precipData = {
+                    lastUpdate: Date.now(), 
+                    data: precipData.results
+                }
 
+                delete precipData.results;
+                cache.setItem(key, JSON.stringify(precipData));
+                cache.setItem(keyMax, getMaxPrecip(cache, "noaa_precip_"));
+                $("#chart").html("");
+                resolve(precipData.data);
+
+                /*
                 $.ajax({
                     url: NOAA["URL"],
                     type: "GET",
@@ -113,6 +125,7 @@ var NOAA = function() {
                     cache.setItem(keyMax, getMaxPrecip(cache, "noaa_precip_"));
                     $("#chart").html("");
                 });
+                */
             }
 
         });
