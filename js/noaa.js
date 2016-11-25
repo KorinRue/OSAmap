@@ -1,8 +1,8 @@
 var NOAA = function() {
 
     var NOAA = {
-        URL: "http://www.ncdc.noaa.gov/cdo-web/api/v2/data",
-        TOKEN: "zuaINMzpFJTIwKVgRhCBNSUQggvWkpUX"
+        URL: "https://www.ncdc.noaa.gov/cdo-web/api/v2/data",
+        TOKEN: "DKkaIwRgdAtlwYgARVlziBXyuPfhITqD"
     }
 
     var  getPrecipData = function(dateRange) { 
@@ -20,6 +20,7 @@ var NOAA = function() {
             };
         return new Promise( function(resolve, reject) {
 
+            /*
             var precipData = getNOAAData(year);
             precipData = {
                 lastUpdate: Date.now(), 
@@ -29,8 +30,8 @@ var NOAA = function() {
             delete precipData.results;
             $("#chart").html("");
             resolve(precipData.data);
+            */
 
-            /*
             $.ajax({
                 url: NOAA["URL"],
                 type: "GET",
@@ -49,7 +50,6 @@ var NOAA = function() {
             .always(function() {
                 $("#chart").html("");
             });
-            */
         });
     }
 
