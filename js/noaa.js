@@ -1,9 +1,9 @@
 var NOAA = function() {
 
+     //TOKEN: "zuaINMzpFJTIwKVgRhCBNSUQggvWkpUX"  // gus's token
     var NOAA = {
-        URL: "http://www.ncdc.noaa.gov/cdo-web/api/v2/data",
-        TOKEN: "zuaINMzpFJTIwKVgRhCBNSUQggvWkpUX"
-        // TOKEN: "DKkaIwRgdAtlwYgARVlziBXyuPfhITqD"  // korin's token
+        URL: "https://www.ncdc.noaa.gov/cdo-web/api/v2/data",
+        TOKEN: "DKkaIwRgdAtlwYgARVlziBXyuPfhITqD"  // korin's token
     }
 
     var noaaPayload = function(dateRange) {
@@ -87,6 +87,10 @@ var NOAA = function() {
 
             } catch (e) {
 
+                /*
+                // SUBSTITUTE CODE IN CASE NOAA IS UNREACHABLE AND YOU
+                // WANT TO USE THE LOCALLY STORED DATA INSTEAD: 
+                // data/noaa/noaaData.js
                 var precipData = getNOAAData(year);
                 precipData = {
                     lastUpdate: Date.now(), 
@@ -98,13 +102,15 @@ var NOAA = function() {
                 cache.setItem(keyMax, getMaxPrecip(cache, "noaa_precip_"));
                 $("#chart").html("");
                 resolve(precipData.data);
+                */
 
-                /*
                 $.ajax({
                     url: NOAA["URL"],
                     type: "GET",
+                    headers: {
+                        "token": NOAA["TOKEN"]
+                    },
                     data: noaaPayload(dateRange),
-                    headers: {"token": NOAA["TOKEN"],},
                     beforeSend: function( xhr ) {
                         $("#chart").html("<i id='spinner' class='fa fa-refresh fa-spin fa-3x fa-fw'></i><span class='sr-only'>Loading...</span>");
                     }
@@ -119,13 +125,14 @@ var NOAA = function() {
                     resolve(precipData.data);
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR);
                     reject("errors:" + errorThrown);
                 })
                 .always(function() {
                     cache.setItem(keyMax, getMaxPrecip(cache, "noaa_precip_"));
                     $("#chart").html("");
                 });
-                */
+
             }
 
         });
